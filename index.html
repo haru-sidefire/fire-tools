@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIREライフプランシミュレーター｜定年まで働く vs サイドFIRE、資産はどう変わる？</title>
+<meta name="description" content="現職を続けた場合とサイドFIREした場合で、将来の資産がどう変わるかをグラフで比較。退職後の「資産が何歳まで持つか」もわかる取り崩しモード付き。50歳でサイドFIREした実践者が作った無料シミュレーター。">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#eef2f7; --card:#fff; --ink:#1e293b; --sub:#64748b; --line:#e2e8f0;
+  --a:#2563eb; --b:#16a34a; --warn:#ea580c; --purple:#7c3aed; --danger:#dc2626;
+}
+body{font-family:'Hiragino Sans','Yu Gothic UI',sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6;-webkit-text-size-adjust:100%}
+#app{max-width:1080px;margin:0 auto;padding:0 0 40px}
+
+/* ヘッダー */
+.hdr{background:linear-gradient(135deg,#1e3a5f,#2563eb);color:#fff;padding:18px 18px 16px;text-align:center}
+.hdr h1{font-size:1.15rem;line-height:1.4}
+.hdr p{font-size:.76rem;opacity:.85;margin-top:4px}
+
+/* モード切替 */
+.modebar{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px}
+.modebtn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:11px 8px;border:2px solid var(--line);background:var(--card);color:var(--sub);border-radius:12px;cursor:pointer;font-family:inherit;font-size:.9rem;font-weight:700;transition:.15s;line-height:1.3}
+.modebtn small{font-size:.66rem;font-weight:400;color:#94a3b8}
+.modebtn.on{border-color:var(--a);color:var(--a);background:#f5f9ff;box-shadow:0 3px 10px rgba(37,99,235,.1)}
+.modebtn.on small{color:var(--a);opacity:.8}
+
+.tabs{display:flex;gap:6px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+.tab{padding:6px 15px;border:1.5px solid rgba(255,255,255,.45);background:transparent;color:#fff;border-radius:20px;cursor:pointer;font-size:.8rem;font-family:inherit;transition:.2s}
+.tab.on{background:#fff;color:#1e3a5f;border-color:#fff;font-weight:700}
+
+/* 固定の結果エリア */
+.sticky-result{position:sticky;top:0;z-index:20;background:var(--bg);padding:10px 12px 6px;box-shadow:0 4px 12px rgba(0,0,0,.04)}
+.summ{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-bottom:8px}
+.sm{background:var(--card);border-radius:10px;padding:9px 11px;border-left:4px solid var(--line);transition:opacity .2s,box-shadow .2s}
+.sm.hl{box-shadow:0 3px 12px rgba(0,0,0,.1)}
+.sm.a{border-left-color:var(--a)}.sm.b{border-left-color:var(--b)}.sm.w{border-left-color:var(--warn)}.sm.p{border-left-color:var(--purple)}
+.sm-l{font-size:.66rem;color:var(--sub);margin-bottom:2px}
+.sm-v{font-size:1.02rem;font-weight:700;line-height:1.25}
+.sm-s{font-size:.62rem;color:#94a3b8;margin-top:1px}
+.cbox{background:var(--card);border-radius:12px;padding:10px 12px 6px}
+.cbox-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:.78rem;font-weight:700;color:#334155}
+.leg{display:flex;gap:12px;font-size:.68rem;color:var(--sub)}
+.leg-i{display:flex;align-items:center;gap:5px}
+.leg-c{width:16px;height:3px;border-radius:2px}
+.chart-h{position:relative;height:170px}
+
+/* 本体 */
+.body{padding:12px}
+.panel{background:var(--card);border-radius:12px;padding:14px 15px;margin-bottom:12px}
+.panel-t{font-size:.82rem;font-weight:700;color:#334155;margin-bottom:3px;display:flex;align-items:center;gap:6px}
+.panel-d{font-size:.7rem;color:var(--sub);margin-bottom:12px}
+.quick{display:grid;grid-template-columns:1fr;gap:14px}
+.fl{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:5px}
+.fl .lbl{font-size:.84rem;color:#475569}
+.fl .fv{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;font-size:.95rem}
+input[type=range]{width:100%;height:5px;accent-color:var(--a);cursor:pointer;border-radius:3px}
+input[type=range].acc-b{accent-color:var(--b)}
+
+details.adv{background:var(--card);border-radius:12px;margin-bottom:12px;overflow:hidden}
+details.adv>summary{padding:14px 15px;font-size:.86rem;font-weight:700;color:#334155;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between}
+details.adv>summary::-webkit-details-marker{display:none}
+details.adv>summary .arw{transition:.2s;color:var(--sub)}
+details.adv[open]>summary .arw{transform:rotate(180deg)}
+.adv-body{padding:0 15px 16px}
+.sec{margin-top:16px}
+.sec:first-child{margin-top:4px}
+.sec-t{font-size:.68rem;color:var(--sub);font-weight:700;letter-spacing:.05em;padding-bottom:6px;border-bottom:1px solid var(--line);margin-bottom:11px}
+.grid2{display:grid;grid-template-columns:1fr;gap:13px}
+.toggle{display:flex;align-items:center;gap:8px;font-size:.84rem;color:#475569;cursor:pointer;user-select:none;margin-bottom:4px}
+.toggle input{width:18px;height:18px;accent-color:var(--a);cursor:pointer}
+.seg{display:flex;gap:4px;margin-top:3px}
+.seg button{flex:1;padding:6px 0;border:1.5px solid var(--line);background:#f8fafc;color:#475569;border-radius:8px;cursor:pointer;font-size:.82rem;font-family:inherit;font-weight:600}
+.seg button.on{background:var(--a);color:#fff;border-color:var(--a)}
+.hide{display:none!important}
+
+.tbox{background:var(--card);border-radius:12px;padding:14px 15px;margin-bottom:12px}
+.t-t{font-size:.82rem;font-weight:700;color:#334155;margin-bottom:9px}
+.t-w{overflow:auto;max-height:380px;border:1px solid var(--line);border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:.72rem;white-space:nowrap}
+th{background:#1e3a5f;color:#fff;padding:7px 8px;text-align:right;position:sticky;top:0;z-index:1;font-weight:600}
+th:first-child{text-align:left}
+td{padding:5px 8px;text-align:right;border-bottom:1px solid #f1f5f9}
+td:first-child{text-align:left}
+tr.edu{background:#fffbeb}tr.pen{background:#f0fdf4}tr.fir{background:#eff6ff}tr.now td{font-weight:700;background:#f1f5f9}
+.badge{display:inline-block;font-size:.56rem;padding:1px 4px;border-radius:3px;margin-left:3px;vertical-align:middle}
+.be{background:#fef3c7;color:#92400e}.bp{background:#dcfce7;color:#166534}.bf{background:#dbeafe;color:#1e40af}
+.hint{font-size:.66rem;color:#94a3b8;margin-top:9px;line-height:1.7}
+
+.books{display:grid;grid-template-columns:1fr;gap:10px}
+.book{display:flex;gap:12px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:inherit;transition:.15s;background:#fafbfc}
+.book:hover{border-color:var(--a);background:#fff;box-shadow:0 3px 10px rgba(37,99,235,.08)}
+.book-ico{font-size:1.7rem;flex-shrink:0;line-height:1}
+.book-t{font-size:.86rem;font-weight:700;color:var(--a);line-height:1.35}
+.book-d{font-size:.72rem;color:var(--sub);margin-top:3px}
+.aff-note{font-size:.66rem;color:#94a3b8;margin-top:10px;line-height:1.6}
+
+.cta{background:linear-gradient(135deg,#1e3a5f,#2563eb);color:#fff;border-radius:12px;padding:18px;text-align:center;margin-bottom:12px}
+.cta h3{font-size:.95rem;margin-bottom:6px}
+.cta p{font-size:.76rem;opacity:.9;margin-bottom:12px;line-height:1.7}
+.cta-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.cta-btn{display:inline-block;padding:9px 18px;border-radius:22px;text-decoration:none;font-size:.82rem;font-weight:700}
+.cta-btn.note{background:#fff;color:#1e3a5f}
+.cta-btn.x{background:rgba(255,255,255,.15);color:#fff;border:1.5px solid rgba(255,255,255,.5)}
+
+footer{text-align:center;font-size:.66rem;color:#94a3b8;padding:8px 16px;line-height:1.8}
+
+@media(min-width:768px){
+  .hdr h1{font-size:1.35rem}
+  .modebar{max-width:560px;margin:0 auto}
+  .summ{grid-template-columns:repeat(4,1fr)}
+  .chart-h{height:240px}
+  .quick{grid-template-columns:repeat(3,1fr);gap:22px}
+  .grid2{grid-template-columns:1fr 1fr;gap:14px 26px}
+  .books{grid-template-columns:1fr 1fr}
+  .sm-v{font-size:1.12rem}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="hdr">
+    <h1>🔥 FIREライフプランシミュレーター</h1>
+    <p id="hdrSub">「このまま働く」と「サイドFIRE」で、資産はどう変わる？</p>
+    <div class="tabs" id="judgeTabs">
+      <button class="tab on" id="tb-compare" onclick="setV('compare')">📊 比較</button>
+      <button class="tab" id="tb-A" onclick="setV('A')">🏢 現職継続</button>
+      <button class="tab" id="tb-B" onclick="setV('B')">🔥 サイドFIRE</button>
+    </div>
+  </div>
+
+  <!-- モード切替 -->
+  <div class="modebar">
+    <button class="modebtn on" id="mode-judge" onclick="setMode('judge')">🤔 FIREを判断する<small>まだ働いている方</small></button>
+    <button class="modebtn" id="mode-retired" onclick="setMode('retired')">🏝️ FIRE後の資産を見る<small>退職した方</small></button>
+  </div>
+
+  <!-- 結果エリア（sticky） -->
+  <div class="sticky-result">
+    <div class="summ" id="summ"></div>
+    <div class="cbox">
+      <div class="cbox-h">
+        <span id="chartTitle">資産推移（万円）</span>
+        <div class="leg">
+          <div class="leg-i" id="legA"><div class="leg-c" style="background:#2563eb"></div>現職継続</div>
+          <div class="leg-i"><div class="leg-c" style="background:#16a34a"></div><span id="legBtext">サイドFIRE</span></div>
+        </div>
+      </div>
+      <div class="chart-h"><canvas id="ch"></canvas></div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <!-- かんたん入力 -->
+    <div class="panel">
+      <div class="panel-t" id="quickTitle">⚡ まず3つだけ入れてみる</div>
+      <div class="panel-d" id="quickDesc">スライダーを動かすと、上のグラフがすぐ変わります。</div>
+      <div class="quick">
+        <div class="fld">
+          <div class="fl"><span class="lbl">今の投資資産</span><span class="fv" id="v0"></span></div>
+          <input type="range" id="r0" min="0" max="15000" step="100" value="3000" oninput="go()">
+        </div>
+        <div class="fld">
+          <div class="fl"><span class="lbl">1年の生活費</span><span class="fv" id="v1"></span></div>
+          <input type="range" id="r1" min="150" max="900" step="10" value="400" oninput="go()">
+        </div>
+        <div class="fld" id="fldFire">
+          <div class="fl"><span class="lbl">FIREする年齢</span><span class="fv" id="v9"></span></div>
+          <input type="range" id="r9" class="acc-b" min="40" max="65" step="1" value="50" oninput="go()">
+        </div>
+      </div>
+    </div>
+
+    <!-- 詳細設定 -->
+    <details class="adv">
+      <summary><span>⚙️ 詳しく設定する（年齢・年金・教育費など）</span><span class="arw">▼</span></summary>
+      <div class="adv-body">
+
+        <div class="sec">
+          <div class="sec-t">👤 あなたと家族</div>
+          <div class="grid2">
+            <div class="fld">
+              <div class="fl"><span class="lbl">今のあなたの年齢</span><span class="fv" id="vAge"></span></div>
+              <input type="range" id="rAge" min="30" max="80" step="1" value="47" oninput="go()">
+            </div>
+            <div class="fld">
+              <label class="toggle"><input type="checkbox" id="cSpouse" checked onchange="go()"> 配偶者がいる</label>
+              <div id="spouseAgeWrap">
+                <div class="fl"><span class="lbl">配偶者の年齢</span><span class="fv" id="vSpAge"></span></div>
+                <input type="range" id="rSpAge" min="30" max="85" step="1" value="45" oninput="go()">
+              </div>
+            </div>
+          </div>
+          <div class="sec" style="margin-top:13px">
+            <div class="fl"><span class="lbl">子どもの人数</span><span class="fv" id="vKids"></span></div>
+            <div class="seg" id="kidSeg">
+              <button type="button" data-k="0" onclick="setKids(0)">0人</button>
+              <button type="button" data-k="1" onclick="setKids(1)">1人</button>
+              <button type="button" data-k="2" onclick="setKids(2)">2人</button>
+              <button type="button" data-k="3" onclick="setKids(3)">3人</button>
+            </div>
+            <div id="kidAgesWrap" style="margin-top:12px">
+              <div class="grid2">
+                <div class="fld kidrow" data-i="0"><div class="fl"><span class="lbl">第1子の年齢</span><span class="fv" id="vK0"></span></div><input type="range" id="rK0" min="0" max="25" step="1" value="15" oninput="go()"></div>
+                <div class="fld kidrow" data-i="1"><div class="fl"><span class="lbl">第2子の年齢</span><span class="fv" id="vK1"></span></div><input type="range" id="rK1" min="0" max="25" step="1" value="12" oninput="go()"></div>
+                <div class="fld kidrow" data-i="2"><div class="fl"><span class="lbl">第3子の年齢</span><span class="fv" id="vK2"></span></div><input type="range" id="rK2" min="0" max="25" step="1" value="8" oninput="go()"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-t">💰 収入と運用</div>
+          <div class="grid2">
+            <div class="fld" id="fldSalary">
+              <div class="fl"><span class="lbl">給与の手取り（年・現在）</span><span class="fv" id="v3"></span></div>
+              <input type="range" id="r3" min="0" max="1500" step="10" value="600" oninput="go()">
+            </div>
+            <div class="fld" id="spouseIncWrap">
+              <div class="fl"><span class="lbl">配偶者の収入（年）</span><span class="fv" id="v4"></span></div>
+              <input type="range" id="r4" min="0" max="500" step="10" value="100" oninput="go()">
+            </div>
+            <div class="fld">
+              <div class="fl"><span class="lbl">投資の利回り（年率）</span><span class="fv" id="v2"></span></div>
+              <input type="range" id="r2" min="0" max="8" step="0.5" value="4" oninput="go()">
+            </div>
+            <div class="fld">
+              <div class="fl"><span class="lbl">想定インフレ率（年率）</span><span class="fv" id="vInf"></span></div>
+              <input type="range" id="rInf" min="0" max="3" step="0.5" value="1.5" oninput="go()">
+            </div>
+          </div>
+          <div class="hint" style="margin-top:8px">※実際に増える力は「利回り − インフレ率」です。金額はすべて今の物価で表示します。</div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-t">🏛️ 年金（65歳でもらう場合の額を入れてください）</div>
+          <div class="grid2">
+            <div class="fld">
+              <div class="fl"><span class="lbl">あなたの年金（65歳基準・年額）</span><span class="fv" id="v5"></span></div>
+              <input type="range" id="r5" min="0" max="300" step="5" value="180" oninput="go()">
+            </div>
+            <div class="fld">
+              <div class="fl"><span class="lbl">あなたの受給開始年齢</span><span class="fv" id="v5age"></span></div>
+              <input type="range" id="r5age" min="60" max="75" step="1" value="65" oninput="go()">
+            </div>
+            <div class="fld" id="spousePenWrap">
+              <div class="fl"><span class="lbl">配偶者の年金（65歳基準・年額）</span><span class="fv" id="v6"></span></div>
+              <input type="range" id="r6" min="0" max="200" step="5" value="80" oninput="go()">
+            </div>
+            <div class="fld" id="spousePenAgeWrap">
+              <div class="fl"><span class="lbl">配偶者の受給開始年齢</span><span class="fv" id="v6age"></span></div>
+              <input type="range" id="r6age" min="60" max="75" step="1" value="65" oninput="go()">
+            </div>
+          </div>
+          <div class="hint" style="margin-top:8px">※繰り上げ（60歳〜）は月0.4%減、繰り下げ（〜75歳）は月0.7%増で自動計算します。</div>
+        </div>
+
+        <div class="sec" id="secGenshoku">
+          <div class="sec-t">🏢 「現職継続」シナリオ</div>
+          <div class="grid2">
+            <div class="fld">
+              <div class="fl"><span class="lbl">定年で辞める年齢</span><span class="fv" id="v7"></span></div>
+              <input type="range" id="r7" min="50" max="70" step="1" value="65" oninput="go()">
+            </div>
+            <div class="fld">
+              <div class="fl"><span class="lbl">定年後の収入（年）</span><span class="fv" id="v8"></span></div>
+              <input type="range" id="r8" min="0" max="400" step="10" value="50" oninput="go()">
+            </div>
+          </div>
+        </div>
+
+        <div class="sec" id="secSideFire">
+          <div class="sec-t" id="secSideFireTitle">🔥 「サイドFIRE」シナリオ</div>
+          <div class="grid2">
+            <div class="fld">
+              <div class="fl"><span class="lbl" id="lblIncome">FIRE後の収入（年）</span><span class="fv" id="vA"></span></div>
+              <input type="range" id="rA" class="acc-b" min="0" max="600" step="10" value="120" oninput="go()">
+            </div>
+          </div>
+          <div class="hint" id="sideFireHint" style="margin-top:8px">※「FIREする年齢」は上の⚡かんたん入力で調整できます。</div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-t">🎓 教育費（子ども1人あたり・年額）</div>
+          <div class="grid2">
+            <div class="fld"><div class="fl"><span class="lbl">中学（12〜14歳）</span><span class="fv" id="vB"></span></div><input type="range" id="rB" min="0" max="200" step="10" value="50" oninput="go()"></div>
+            <div class="fld"><div class="fl"><span class="lbl">高校（15〜17歳）</span><span class="fv" id="vC"></span></div><input type="range" id="rC" min="0" max="250" step="10" value="80" oninput="go()"></div>
+            <div class="fld"><div class="fl"><span class="lbl">大学（18〜21歳）</span><span class="fv" id="vD"></span></div><input type="range" id="rD" min="0" max="400" step="10" value="150" oninput="go()"></div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;text-align:right">
+          <button type="button" onclick="resetAll()" style="font-size:.74rem;color:var(--sub);background:none;border:1px solid var(--line);padding:6px 12px;border-radius:8px;cursor:pointer;font-family:inherit">設定をリセット</button>
+        </div>
+
+      </div>
+    </details>
+
+    <!-- 表 -->
+    <div class="tbox">
+      <div class="t-t">📋 キャッシュフロー表（万円）</div>
+      <div class="t-w">
+        <table><thead><tr id="th-r"></tr></thead><tbody id="tb-b"></tbody></table>
+      </div>
+      <div class="hint">
+        🟡 教育費がかかる年 &nbsp;|&nbsp; 🟢 年金スタート &nbsp;|&nbsp; 🔵 FIRE実行年<br>
+        ※収入は手取りの概算。年金は税引前。金額はすべて「今の物価」での目安です（インフレ率を差し引いた実質利回りで計算）。実際の数字はねんきん定期便・源泉徴収票でご確認ください。
+      </div>
+    </div>
+
+    <!-- 書籍（アフィリ） -->
+    <div class="panel">
+      <div class="panel-t">📚 FIREを考えるなら、この3冊</div>
+      <div class="panel-d">私自身が読んで、考え方の土台になった本です。</div>
+      <div class="books">
+        <a class="book" href="https://amzn.to/4t3dgp3" target="_blank" rel="nofollow noopener">
+          <div class="book-ico">🎓</div>
+          <div><div class="book-t">本当の自由を手に入れる お金の大学</div>
+          <div class="book-d">「貯める・稼ぐ・増やす」の全体像。最初の1冊に。（両＠リベ大学長）</div></div>
+        </a>
+        <a class="book" href="https://amzn.to/41mqSj1" target="_blank" rel="nofollow noopener">
+          <div class="book-ico">📈</div>
+          <div><div class="book-t">全面改訂 第3版 ほったらかし投資術</div>
+          <div class="book-d">インデックス投資の決定版。このシミュレーターの「利回り」の考え方の元。（山崎元・水瀬ケンイチ）</div></div>
+        </a>
+        <a class="book" href="https://amzn.to/4mmC4FU" target="_blank" rel="nofollow noopener">
+          <div class="book-ico">⏳</div>
+          <div><div class="book-t">DIE WITH ZERO</div>
+          <div class="book-d">お金は「いつ使うか」が大事。FIRE後の人生設計の必読書。（ビル・パーキンス）</div></div>
+        </a>
+      </div>
+      <div class="aff-note">※当サイトはAmazonアソシエイト・プログラムに参加しています。上記リンクから購入された場合、運営者に紹介料が入ることがあります。</div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta">
+      <h3>50歳で本当にサイドFIREした記録、書いてます</h3>
+      <p>このシミュレーターを作ったのは、実際に50歳で会社を辞めた「はるパパ」です。退職金・失業手当・社会保険・資産公開まで、リアルな数字をnoteで発信中。</p>
+      <div class="cta-btns">
+        <a class="cta-btn note" href="https://note.com/lucid_zinnia7777" target="_blank" rel="noopener">📝 noteを読む</a>
+        <a class="cta-btn x" href="https://x.com/haru_sideFIRE" target="_blank" rel="noopener">𝕏 @haru_sideFIRE</a>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    入力した数字はお使いの端末（ブラウザ）にのみ保存され、外部には送信されません。<br>
+    本ツールは投資・将来設計の判断を保証するものではありません。参考値としてご利用ください。
+  </footer>
+
+</div>
+
+<script>
+const BASE=2026, MAXAGE=95, KEY='haruLifeplan_v3';
+let chart=null, curV='compare', numKids=2, mode='judge';
+const $=id=>document.getElementById(id);
+
+const DEFAULTS={
+  r0:3000, r1:400, r9:50, rAge:47, cSpouse:true, rSpAge:45,
+  numKids:2, rK0:15, rK1:12, rK2:8,
+  r3:600, r4:100, r2:4, rInf:1.5, r5:180, r5age:65, r6:80, r6age:65, r7:65, r8:50, rA:120,
+  rB:50, rC:80, rD:150, mode:'judge'
+};
+
+function setKids(n){
+  numKids=n;
+  document.querySelectorAll('#kidSeg button').forEach(b=>b.classList.toggle('on',+b.dataset.k===n));
+  document.querySelectorAll('.kidrow').forEach(r=>r.classList.toggle('hide',+r.dataset.i>=n));
+  $('kidAgesWrap').classList.toggle('hide',n===0);
+  go();
+}
+
+function setMode(m){
+  mode=m;
+  $('mode-judge').classList.toggle('on',m==='judge');
+  $('mode-retired').classList.toggle('on',m==='retired');
+  const ret=(m==='retired');
+  // 表示の出し分け
+  $('judgeTabs').classList.toggle('hide',ret);
+  $('fldFire').classList.toggle('hide',ret);
+  $('fldSalary').classList.toggle('hide',ret);
+  $('secGenshoku').classList.toggle('hide',ret);
+  $('legA').classList.toggle('hide',ret);
+  $('sideFireHint').classList.toggle('hide',ret);
+  // 文言の出し分け
+  $('hdrSub').textContent=ret?'今の資産は、何歳まで持つ？':'「このまま働く」と「サイドFIRE」で、資産はどう変わる？';
+  $('quickTitle').textContent=ret?'⚡ まず2つ入れてみる':'⚡ まず3つだけ入れてみる';
+  $('quickDesc').textContent=ret?'今の資産と生活費を入れて、「詳しく設定」で年間収入を入れてください。':'スライダーを動かすと、上のグラフがすぐ変わります。';
+  $('secSideFireTitle').textContent=ret?'💰 あなたの年間収入':'🔥 「サイドFIRE」シナリオ';
+  $('lblIncome').textContent=ret?'今の年間収入（配当・副業・パート等）':'FIRE後の収入（年）';
+  $('legBtext').textContent=ret?'あなたの資産':'サイドFIRE';
+  $('chartTitle').textContent=ret?'資産が何歳まで持つか（万円）':'資産推移（万円）';
+  curV = ret ? 'B' : 'compare';
+  go();
+}
+
+function p(){
+  const selfAge=+$('rAge').value;
+  return{
+    assets:+$('r0').value, living:+$('r1').value,
+    fireAge: mode==='retired' ? selfAge : +$('r9').value,
+    selfAge, hasSpouse:$('cSpouse').checked, spAge:+$('rSpAge').value,
+    kids:numKids, kidAges:[+$('rK0').value,+$('rK1').value,+$('rK2').value],
+    salary: mode==='retired' ? 0 : +$('r3').value,
+    spouse:$('cSpouse').checked?+$('r4').value:0, ret:+$('r2').value, inf:+$('rInf').value,
+    pension:+$('r5').value, pensionAge:+$('r5age').value,
+    wpension:$('cSpouse').checked?+$('r6').value:0, wpensionAge:+$('r6age').value,
+    retireA:+$('r7').value, sideA:+$('r8').value, sideB:+$('rA').value,
+    jh:+$('rB').value, hs:+$('rC').value, uni:+$('rD').value,
+  };
+}
+
+function lbl(q){
+  const man=n=>n.toLocaleString()+'万円';
+  $('v0').textContent=man(q.assets); $('v1').textContent=man(q.living);
+  $('v9').textContent=q.fireAge+'歳'; $('vAge').textContent=q.selfAge+'歳';
+  $('vSpAge').textContent=q.spAge+'歳'; $('vKids').textContent=numKids+'人';
+  $('vK0').textContent=q.kidAges[0]+'歳'; $('vK1').textContent=q.kidAges[1]+'歳'; $('vK2').textContent=q.kidAges[2]+'歳';
+  $('v3').textContent=man(q.salary); $('v4').textContent=man(q.spouse); $('v2').textContent=q.ret.toFixed(1)+'%'; $('vInf').textContent=q.inf.toFixed(1)+'%';
+  $('v5').textContent=man(q.pension); $('v6').textContent=man(q.wpension);
+  $('v5age').textContent=penLbl(q.pensionAge); $('v6age').textContent=penLbl(q.wpensionAge);
+  $('v7').textContent=q.retireA+'歳'; $('v8').textContent=man(q.sideA); $('vA').textContent=man(q.sideB);
+  $('vB').textContent=man(q.jh); $('vC').textContent=man(q.hs); $('vD').textContent=man(q.uni);
+  const show=q.hasSpouse;
+  $('spouseAgeWrap').classList.toggle('hide',!show);
+  $('spouseIncWrap').classList.toggle('hide',!show);
+  $('spousePenWrap').classList.toggle('hide',!show);
+  $('spousePenAgeWrap').classList.toggle('hide',!show);
+}
+
+function getInc(age,scen,q){
+  let n=0;
+  if(scen==='A'){ if(age<q.retireA) n+=q.salary; else if(age<65) n+=q.sideA; }
+  else { if(age<q.fireAge) n+=q.salary; else n+=q.sideB; }
+  n+=pensionAt(q.pension,q.pensionAge,age);
+  if(q.hasSpouse){
+    const sa=q.spAge+(age-q.selfAge);
+    if(sa<65) n+=q.spouse;
+    n+=pensionAt(q.wpension,q.wpensionAge,sa);
+  }
+  return n;
+}
+
+function getEdu(age,q){
+  let t=0;
+  for(let i=0;i<q.kids;i++){
+    const k=q.kidAges[i]+(age-q.selfAge);
+    if(k>=12&&k<=14) t+=q.jh;
+    else if(k>=15&&k<=17) t+=q.hs;
+    else if(k>=18&&k<=21) t+=q.uni;
+  }
+  return t;
+}
+
+function calc(scen,q){
+  const rows=[]; let assets=q.assets;
+  for(let age=q.selfAge; age<=MAXAGE; age++){
+    const year=BASE+(age-q.selfAge);
+    const sa=q.hasSpouse?q.spAge+(age-q.selfAge):null;
+    const edu=getEdu(age,q);
+    const income=getInc(age,scen,q);
+    const exp=q.living+edu;
+    const ret=assets>0?assets*((q.ret-q.inf)/100):0;
+    const cf=income-exp;
+    assets=Math.round(assets+cf+ret);
+    rows.push({age,year,sa,edu,income,exp,cf,assets,
+      isEdu:edu>0, isPen:age===q.pensionAge, isFire:scen==='B'&&age===q.fireAge&&mode==='judge'});
+  }
+  return rows;
+}
+
+function fmt(n){return Math.round(n).toLocaleString();}
+function oku(n){return n>=10000?(n/10000).toFixed(2)+'億':n.toLocaleString()+'万';}
+function penLbl(a){
+  if(a===65) return '65歳（標準）';
+  if(a<65) return a+'歳（-'+Math.round((65-a)*4.8)+'%）';
+  return a+'歳（+'+Math.round((a-65)*8.4)+'%）';
+}
+function pensionAt(base,startAge,age){
+  if(age<startAge) return 0;
+  const rate=startAge<65?(1-0.004*(65-startAge)*12):(1+0.007*(startAge-65)*12);
+  return base*rate;
+}
+function sgn(n){const s=fmt(n);return n>=0?`<span style="color:#16a34a">+${s}</span>`:`<span style="color:#dc2626">${s}</span>`;}
+function bust(rows){const r=rows.find(x=>x.assets<0);return r?r.age:null;}
+
+function updSumm(rA,rB,q){
+  const endA=rA[rA.length-1].assets, endB=rB[rB.length-1].assets;
+  if(mode==='retired'){
+    const bustAge=bust(rB);
+    const now=rB[0];
+    const nowM=Math.round((now.income-now.exp)/12);
+    $('summ').innerHTML=`
+      <div class="sm b hl"><div class="sm-l">💰 今の資産</div>
+        <div class="sm-v" style="color:#16a34a">${oku(q.assets)}</div>
+        <div class="sm-s">${q.selfAge}歳・スタート時点</div></div>
+      <div class="sm ${bustAge?'w':'b'}"><div class="sm-l">⏳ 資産が尽きる年齢</div>
+        <div class="sm-v" style="color:${bustAge?'#ea580c':'#16a34a'}">${bustAge?bustAge+'歳で底':'✅ 95歳まで安心'}</div>
+        <div class="sm-s">${bustAge?'設定の見直しを':'このペースなら大丈夫'}</div></div>
+      <div class="sm p"><div class="sm-l">📊 95歳時の資産</div>
+        <div class="sm-v" style="color:${endB<0?'#dc2626':'#7c3aed'}">${oku(endB)}</div>
+        <div class="sm-s">最後まで残る想定額</div></div>
+      <div class="sm a"><div class="sm-l">📅 今の毎月の収支</div>
+        <div class="sm-v" style="color:${nowM<0?'#dc2626':'#16a34a'}">${nowM>=0?'+':''}${nowM.toLocaleString()}万/月</div>
+        <div class="sm-s">${nowM<0?'資産を取り崩し中':'黒字で生活'}</div></div>`;
+    return;
+  }
+  const bustB=bust(rB), fireOK=bustB===null, yrs=q.fireAge-q.selfAge;
+  const dimA=curV==='B'?'opacity:.4':'', dimB=curV==='A'?'opacity:.4':'';
+  const hlA=curV==='A'?' hl':'', hlB=curV==='B'?' hl':'';
+  $('summ').innerHTML=`
+    <div class="sm a${hlA}" style="${dimA}"><div class="sm-l">🏢 現職継続｜95歳の資産</div>
+      <div class="sm-v" style="color:${endA<0?'#dc2626':'#2563eb'}">${oku(endA)}</div>
+      <div class="sm-s">${q.retireA}歳まで働く想定</div></div>
+    <div class="sm b${hlB}" style="${dimB}"><div class="sm-l">🔥 サイドFIRE｜95歳の資産</div>
+      <div class="sm-v" style="color:${endB<0?'#dc2626':'#16a34a'}">${oku(endB)}</div>
+      <div class="sm-s">${q.fireAge}歳でFIRE想定</div></div>
+    <div class="sm ${fireOK?'b':'w'}${hlB}" style="${dimB}"><div class="sm-l">🔥 FIRE後、資産は持つ？</div>
+      <div class="sm-v" style="color:${fireOK?'#16a34a':'#ea580c'}">${fireOK?'✅ 95歳まで持続':'⚠️ '+bustB+'歳で底'}</div>
+      <div class="sm-s">${fireOK?'このプランなら安心':'設定の見直しを'}</div></div>
+    <div class="sm p${hlB}" style="${dimB}"><div class="sm-l">⏳ FIREまで</div>
+      <div class="sm-v" style="color:#7c3aed">${yrs<=0?'今すぐ可能':'あと'+yrs+'年'}</div>
+      <div class="sm-s">${BASE+(yrs>0?yrs:0)}年・${q.fireAge}歳で実行</div></div>`;
+}
+
+function chartStyles(){
+  const dimA=curV==='B', dimB=curV==='A';
+  return{
+    a:{label:'現職継続',borderColor:dimA?'rgba(37,99,235,.28)':'#2563eb',borderWidth:dimA?1.3:2.8,borderDash:dimA?[5,4]:[],backgroundColor:dimA?'rgba(0,0,0,0)':'rgba(37,99,235,.07)',fill:!dimA,hidden:mode==='retired'},
+    b:{label:mode==='retired'?'あなたの資産':'サイドFIRE',borderColor:dimB?'rgba(22,163,74,.28)':'#16a34a',borderWidth:dimB?1.3:2.8,borderDash:dimB?[5,4]:[],backgroundColor:dimB?'rgba(0,0,0,0)':'rgba(22,163,74,.07)',fill:!dimB,hidden:false}
+  };
+}
+function updChart(rA,rB){
+  const lb=rA.map(r=>r.age+'歳'), dA=rA.map(r=>r.assets), dB=rB.map(r=>r.assets);
+  const st=chartStyles();
+  if(chart){
+    chart.data.labels=lb;
+    Object.assign(chart.data.datasets[0],{data:dA,...st.a});
+    Object.assign(chart.data.datasets[1],{data:dB,...st.b});
+    chart.update('none');return;
+  }
+  chart=new Chart($('ch'),{type:'line',
+    data:{labels:lb,datasets:[
+      {label:'現職継続',data:dA,pointRadius:0,tension:.3,...st.a},
+      {label:'サイドFIRE',data:dB,pointRadius:0,tension:.3,...st.b}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw.toLocaleString()}万円`}}},
+      scales:{x:{grid:{color:'rgba(0,0,0,.04)'},ticks:{maxTicksLimit:9,font:{size:10}}},
+        y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10},callback:v=>v>=10000?(v/10000).toFixed(1)+'億':v.toLocaleString()}}}}});
+}
+
+function updTable(rA,rB,q){
+  const ret=mode==='retired';
+  const sA=!ret&&curV!=='B', sB=ret||curV!=='A';
+  const bl=ret?'':'B', al=ret?'':'A';
+  $('th-r').innerHTML=`<th>年/イベント</th><th>歳</th>${q.hasSpouse?'<th>配</th>':''}
+    ${sA?'<th>収入</th>':''}${sB?'<th>収入</th>':''}<th>支出</th>
+    ${sA?`<th>収支${al}</th>`:''}${sB?`<th>収支${bl}</th>`:''}${sA?`<th>資産${al}</th>`:''}${sB?`<th>資産${bl}</th>`:''}`;
+  let h='';
+  for(let i=0;i<rA.length;i++){
+    const a=rA[i],b=rB[i]; let cls='',bdg='';
+    if(a.isEdu){cls='edu';bdg+='<span class="badge be">🎓</span>';}
+    if(a.isPen){cls='pen';bdg+='<span class="badge bp">💰</span>';}
+    if(b.isFire){cls='fir';bdg+='<span class="badge bf">🔥</span>';}
+    if(a.age===q.selfAge) cls+=' now';
+    const cA=a.assets<0?'color:#dc2626;font-weight:700':'', cB=b.assets<0?'color:#dc2626;font-weight:700':'';
+    h+=`<tr class="${cls.trim()}"><td>${a.year}${bdg}</td><td>${a.age}</td>${q.hasSpouse?`<td>${a.sa}</td>`:''}
+      ${sA?`<td>${fmt(a.income)}</td>`:''}${sB?`<td>${fmt(b.income)}</td>`:''}<td>${fmt(a.exp)}</td>
+      ${sA?`<td>${sgn(a.cf)}</td>`:''}${sB?`<td>${sgn(b.cf)}</td>`:''}
+      ${sA?`<td style="${cA}">${fmt(a.assets)}</td>`:''}${sB?`<td style="${cB}">${fmt(b.assets)}</td>`:''}</tr>`;
+  }
+  $('tb-b').innerHTML=h;
+}
+
+function setV(v){if(mode!=='judge')return;curV=v;['compare','A','B'].forEach(x=>$('tb-'+x).classList.toggle('on',x===v));go();}
+
+function adjustRanges(){
+  const sa=+$('rAge').value;
+  ['r7','r9'].forEach(id=>{const el=$(id);el.min=sa;if(+el.value<sa)el.value=sa;});
+}
+
+function save(){
+  const o={numKids,mode};
+  ['r0','r1','r9','rAge','rSpAge','rK0','rK1','rK2','r3','r4','r2','rInf','r5','r5age','r6','r6age','r7','r8','rA','rB','rC','rD'].forEach(k=>o[k]=$(k).value);
+  o.cSpouse=$('cSpouse').checked;
+  try{localStorage.setItem(KEY,JSON.stringify(o));}catch(e){}
+}
+
+function load(){
+  let o=null;
+  try{o=JSON.parse(localStorage.getItem(KEY));}catch(e){}
+  o=o||DEFAULTS;
+  Object.keys(o).forEach(k=>{
+    if(k==='numKids'||k==='mode')return;
+    const el=$(k); if(!el)return;
+    if(el.type==='checkbox') el.checked=o[k]; else el.value=o[k];
+  });
+  numKids=(o.numKids!==undefined)?o.numKids:DEFAULTS.numKids;
+  mode=(o.mode!==undefined)?o.mode:DEFAULTS.mode;
+}
+
+function resetAll(){
+  try{localStorage.removeItem(KEY);}catch(e){}
+  Object.keys(DEFAULTS).forEach(k=>{
+    if(k==='numKids'||k==='cSpouse'||k==='mode')return;
+    const el=$(k); if(el)el.value=DEFAULTS[k];
+  });
+  $('cSpouse').checked=DEFAULTS.cSpouse;
+  numKids=DEFAULTS.numKids;
+  document.querySelectorAll('#kidSeg button').forEach(b=>b.classList.toggle('on',+b.dataset.k===numKids));
+  document.querySelectorAll('.kidrow').forEach(r=>r.classList.toggle('hide',+r.dataset.i>=numKids));
+  $('kidAgesWrap').classList.toggle('hide',numKids===0);
+  setMode('judge');
+}
+
+function go(){
+  adjustRanges();
+  const q=p(); lbl(q);
+  const rA=calc('A',q), rB=calc('B',q);
+  updSumm(rA,rB,q); updChart(rA,rB); updTable(rA,rB,q);
+  save();
+}
+
+// 初期化
+load();
+document.querySelectorAll('#kidSeg button').forEach(b=>b.classList.toggle('on',+b.dataset.k===numKids));
+document.querySelectorAll('.kidrow').forEach(r=>r.classList.toggle('hide',+r.dataset.i>=numKids));
+$('kidAgesWrap').classList.toggle('hide',numKids===0);
+setMode(mode);
+</script>
+</body>
+</html>
