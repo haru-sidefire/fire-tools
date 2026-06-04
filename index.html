@@ -302,7 +302,7 @@ footer{text-align:center;font-size:.66rem;color:#94a3b8;padding:8px 16px;line-he
 
     <!-- 表 -->
     <div class="tbox">
-      <div class="t-t">📋 キャッシュフロー表（万円）</div>
+      <div class="t-t" id="tableTitle">📋 キャッシュフロー表（万円）</div>
       <div class="t-w">
         <table><thead><tr id="th-r"></tr></thead><tbody id="tb-b"></tbody></table>
       </div>
@@ -556,6 +556,9 @@ function updChart(rA,rB){
 
 function updTable(rA,rB,q){
   const ret=mode==='retired';
+  $('tableTitle').innerHTML = ret
+    ? '📋 キャッシュフロー表（万円）'
+    : '📋 キャッシュフロー表（万円）<span style="font-weight:400;font-size:.72rem;color:#64748b">　A＝🏢現職継続 ／ B＝🔥サイドFIRE</span>';
   const sA=!ret&&curV!=='B', sB=ret||curV!=='A';
   const bl=ret?'':'B', al=ret?'':'A';
   $('th-r').innerHTML=`<th>年/イベント</th><th>歳</th>${q.hasSpouse?'<th>配</th>':''}
