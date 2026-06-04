@@ -162,15 +162,15 @@ footer{text-align:center;font-size:.66rem;color:#94a3b8;padding:8px 16px;line-he
       <div class="quick">
         <div class="fld">
           <div class="fl"><span class="lbl">今の投資資産</span><span class="fv" id="v0"></span></div>
-          <input type="range" id="r0" min="0" max="15000" step="100" value="3000" oninput="go()">
+          <input type="range" id="r0" min="0" max="15000" step="100" value="1000" oninput="go()">
         </div>
         <div class="fld">
           <div class="fl"><span class="lbl">1年の生活費</span><span class="fv" id="v1"></span></div>
-          <input type="range" id="r1" min="150" max="900" step="10" value="400" oninput="go()">
+          <input type="range" id="r1" min="150" max="900" step="10" value="360" oninput="go()">
         </div>
         <div class="fld" id="fldFire">
           <div class="fl"><span class="lbl">FIREする年齢</span><span class="fv" id="v9"></span></div>
-          <input type="range" id="r9" class="acc-b" min="40" max="65" step="1" value="50" oninput="go()">
+          <input type="range" id="r9" class="acc-b" min="40" max="65" step="1" value="55" oninput="go()">
         </div>
       </div>
     </div>
@@ -218,7 +218,7 @@ footer{text-align:center;font-size:.66rem;color:#94a3b8;padding:8px 16px;line-he
           <div class="grid2">
             <div class="fld" id="fldSalary">
               <div class="fl"><span class="lbl">給与の手取り（年・現在）</span><span class="fv" id="v3"></span></div>
-              <input type="range" id="r3" min="0" max="1500" step="10" value="600" oninput="go()">
+              <input type="range" id="r3" min="0" max="1500" step="10" value="500" oninput="go()">
             </div>
             <div class="fld" id="spouseIncWrap">
               <div class="fl"><span class="lbl">配偶者の収入（年）</span><span class="fv" id="v4"></span></div>
@@ -226,7 +226,7 @@ footer{text-align:center;font-size:.66rem;color:#94a3b8;padding:8px 16px;line-he
             </div>
             <div class="fld">
               <div class="fl"><span class="lbl">投資の利回り（年率）</span><span class="fv" id="v2"></span></div>
-              <input type="range" id="r2" min="0" max="8" step="0.5" value="4" oninput="go()">
+              <input type="range" id="r2" min="0" max="10" step="0.5" value="4" oninput="go()">
             </div>
             <div class="fld">
               <div class="fl"><span class="lbl">想定インフレ率（年率）</span><span class="fv" id="vInf"></span></div>
@@ -361,9 +361,9 @@ let chart=null, curV='compare', numKids=2, mode='judge';
 const $=id=>document.getElementById(id);
 
 const DEFAULTS={
-  r0:3000, r1:400, r9:50, rAge:47, cSpouse:true, rSpAge:45,
+  r0:1000, r1:360, r9:55, rAge:47, cSpouse:true, rSpAge:45,
   numKids:2, rK0:15, rK1:12, rK2:8,
-  r3:600, r4:100, r2:4, rInf:1.5, r5:180, r5age:65, r6:80, r6age:65, r7:65, r8:50, rA:120,
+  r3:500, r4:100, r2:4, rInf:1.5, r5:180, r5age:65, r6:80, r6age:65, r7:65, r8:50, rA:120,
   rB:50, rC:80, rD:150, mode:'judge'
 };
 
@@ -561,7 +561,7 @@ function updTable(rA,rB,q){
     : '📋 キャッシュフロー表（万円）<span style="font-weight:400;font-size:.72rem;color:#64748b">　A＝🏢現職継続 ／ B＝🔥サイドFIRE</span>';
   const sA=!ret&&curV!=='B', sB=ret||curV!=='A';
   const bl=ret?'':'B', al=ret?'':'A';
-  $('th-r').innerHTML=`<th>年/イベント</th><th>歳</th>${q.hasSpouse?'<th>配</th>':''}
+  $('th-r').innerHTML=`<th>年</th><th>歳</th>${q.hasSpouse?'<th>配</th>':''}
     ${sA?'<th>収入</th>':''}${sB?'<th>収入</th>':''}<th>支出</th>
     ${sA?`<th>収支${al}</th>`:''}${sB?`<th>収支${bl}</th>`:''}${sA?`<th>資産${al}</th>`:''}${sB?`<th>資産${bl}</th>`:''}`;
   let h='';
