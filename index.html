@@ -165,6 +165,14 @@ footer{text-align:center;font-size:.66rem;color:#94a3b8;padding:8px 16px;line-he
           <input type="range" id="r0" min="0" max="15000" step="100" value="1000" oninput="go()">
         </div>
         <div class="fld">
+          <div class="fl"><span class="lbl">今の現金（預貯金）</span><span class="fv" id="vCash"></span></div>
+          <input type="range" id="rCash" min="0" max="10000" step="100" value="0" oninput="go()">
+        </div>
+        <div class="fld">
+          <div class="fl"><span class="lbl">生活防衛資金（現金で残す）</span><span class="fv" id="vReserve"></span></div>
+          <input type="range" id="rReserve" min="0" max="2000" step="50" value="0" oninput="go()">
+        </div>
+        <div class="fld">
           <div class="fl"><span class="lbl">1年の生活費</span><span class="fv" id="v1"></span></div>
           <input type="range" id="r1" min="150" max="900" step="10" value="360" oninput="go()">
         </div>
@@ -361,7 +369,7 @@ let chart=null, curV='compare', numKids=2, mode='judge';
 const $=id=>document.getElementById(id);
 
 const DEFAULTS={
-  r0:1000, r1:360, r9:55, rAge:47, cSpouse:true, rSpAge:45,
+  r0:1000, rCash:0, rReserve:0, r1:360, r9:55, rAge:47, cSpouse:true, rSpAge:45,
   numKids:2, rK0:15, rK1:12, rK2:8,
   r3:500, r4:100, r2:4, rInf:1.5, r5:180, r5age:65, r6:80, r6age:65, r7:65, r8:50, rA:120,
   rB:50, rC:80, rD:150, mode:'judge'
@@ -389,8 +397,8 @@ function setMode(m){
   $('sideFireHint').classList.toggle('hide',ret);
   // 文言の出し分け
   $('hdrSub').textContent=ret?'今の資産は、何歳まで持つ？':'「このまま働く」と「サイドFIRE」で、資産はどう変わる？';
-  $('quickTitle').textContent=ret?'⚡ まず2つ入れてみる':'⚡ まず3つだけ入れてみる';
-  $('quickDesc').textContent=ret?'今の資産と生活費を入れて、「詳しく設定」で年間収入を入れてください。':'スライダーを動かすと、上のグラフがすぐ変わります。';
+  $('quickTitle').textContent=ret?'⚡ 今の状況を入れてみる':'⚡ まず入れてみる';
+  $('quickDesc').textContent=ret?'投資資産・現金・防衛資金・生活費を入れて、「詳しく設定」で年間収入も入れてください。':'スライダーを動かすと、上のグラフがすぐ変わります。';
   $('secSideFireTitle').textContent=ret?'💰 あなたの年間収入':'🔥 「サイドFIRE」シナリオ';
   $('lblIncome').textContent=ret?'今の年間収入（配当・副業・パート等）':'FIRE後の収入（年）';
   $('legBtext').textContent=ret?'あなたの資産':'サイドFIRE';
@@ -402,7 +410,7 @@ function setMode(m){
 function p(){
   const selfAge=+$('rAge').value;
   return{
-    assets:+$('r0').value, living:+$('r1').value,
+    assets:+$('r0').value, cash:+$('rCash').value, reserve:+$('rReserve').value, living:+$('r1').value,
     fireAge: mode==='retired' ? selfAge : +$('r9').value,
     selfAge, hasSpouse:$('cSpouse').checked, spAge:+$('rSpAge').value,
     kids:numKids, kidAges:[+$('rK0').value,+$('rK1').value,+$('rK2').value],
@@ -418,6 +426,7 @@ function p(){
 function lbl(q){
   const man=n=>n.toLocaleString()+'万円';
   $('v0').textContent=man(q.assets); $('v1').textContent=man(q.living);
+  $('vCash').textContent=man(q.cash); $('vReserve').textContent=man(q.reserve);
   $('v9').textContent=q.fireAge+'歳'; $('vAge').textContent=q.selfAge+'歳';
   $('vSpAge').textContent=q.spAge+'歳'; $('vKids').textContent=numKids+'人';
   $('vK0').textContent=q.kidAges[0]+'歳'; $('vK1').textContent=q.kidAges[1]+'歳'; $('vK2').textContent=q.kidAges[2]+'歳';
@@ -458,17 +467,29 @@ function getEdu(age,q){
 }
 
 function calc(scen,q){
-  const rows=[]; let assets=q.assets;
+  const rows=[]; let invest=q.assets; let cash=q.cash||0; const reserve=q.reserve||0;
   for(let age=q.selfAge; age<=MAXAGE; age++){
     const year=BASE+(age-q.selfAge);
     const sa=q.hasSpouse?q.spAge+(age-q.selfAge):null;
     const edu=getEdu(age,q);
     const income=getInc(age,scen,q);
     const exp=q.living+edu;
-    const ret=assets>0?assets*((q.ret-q.inf)/100):0;
     const cf=income-exp;
-    assets=Math.round(assets+cf+ret);
-    rows.push({age,year,sa,edu,income,exp,cf,assets,
+    // 取り崩しの順序：黒字は現金へ。赤字はまず現金（防衛資金を超える分）→次に投資→最後に防衛資金
+    if(cf>=0){
+      cash+=cf;
+    }else{
+      let need=-cf;
+      const cashAvail=Math.max(0,cash-reserve);
+      const fromCash=Math.min(need,cashAvail); cash-=fromCash; need-=fromCash;
+      if(need>0){ const fromInv=Math.min(need,Math.max(0,invest)); invest-=fromInv; need-=fromInv; }
+      if(need>0){ cash-=need; need=0; }
+    }
+    // 運用益は投資資産にのみ（実質＝利回り−インフレ）。現金は増えない。
+    const ret=invest>0?invest*((q.ret-q.inf)/100):0;
+    invest=Math.round(invest+ret); cash=Math.round(cash);
+    const assets=invest+cash;
+    rows.push({age,year,sa,edu,income,exp,cf,assets,invest,cash,
       isEdu:edu>0, isPen:age===q.pensionAge, isFire:scen==='B'&&age===q.fireAge&&mode==='judge'});
   }
   return rows;
@@ -496,8 +517,8 @@ function updSumm(rA,rB,q){
     const now=rB[0];
     const nowM=Math.round((now.income-now.exp)/12);
     $('summ').innerHTML=`
-      <div class="sm b hl"><div class="sm-l">💰 今の資産</div>
-        <div class="sm-v" style="color:#16a34a">${oku(q.assets)}</div>
+      <div class="sm b hl"><div class="sm-l">💰 今の資産（投資＋現金）</div>
+        <div class="sm-v" style="color:#16a34a">${oku(q.assets+(q.cash||0))}</div>
         <div class="sm-s">${q.selfAge}歳・スタート時点</div></div>
       <div class="sm ${bustAge?'w':'b'}"><div class="sm-l">⏳ 資産が尽きる年齢</div>
         <div class="sm-v" style="color:${bustAge?'#ea580c':'#16a34a'}">${bustAge?bustAge+'歳で底':'✅ 95歳まで安心'}</div>
@@ -536,22 +557,29 @@ function chartStyles(){
   };
 }
 function updChart(rA,rB){
-  const lb=rA.map(r=>r.age+'歳'), dA=rA.map(r=>r.assets), dB=rB.map(r=>r.assets);
-  const st=chartStyles();
-  if(chart){
-    chart.data.labels=lb;
-    Object.assign(chart.data.datasets[0],{data:dA,...st.a});
-    Object.assign(chart.data.datasets[1],{data:dB,...st.b});
-    chart.update('none');return;
+  const lb=rA.map(r=>r.age+'歳');
+  const ret=mode==='retired';
+  let datasets;
+  if(ret){
+    // 退職モード：現金（下・青）＋投資（上・緑）の積み上げ。現金が減って消える様子が見える
+    datasets=[
+      {label:'現金',data:rB.map(r=>r.cash),pointRadius:0,tension:.3,borderColor:'#0ea5e9',backgroundColor:'rgba(14,165,233,.32)',borderWidth:1.8,fill:true,stack:'s'},
+      {label:'投資',data:rB.map(r=>r.invest),pointRadius:0,tension:.3,borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,.18)',borderWidth:1.8,fill:true,stack:'s'}
+    ];
+  }else{
+    const st=chartStyles();
+    datasets=[
+      {label:'現職継続',data:rA.map(r=>r.assets),pointRadius:0,tension:.3,...st.a},
+      {label:'サイドFIRE',data:rB.map(r=>r.assets),pointRadius:0,tension:.3,...st.b}
+    ];
   }
+  if(chart){chart.destroy();chart=null;}
   chart=new Chart($('ch'),{type:'line',
-    data:{labels:lb,datasets:[
-      {label:'現職継続',data:dA,pointRadius:0,tension:.3,...st.a},
-      {label:'サイドFIRE',data:dB,pointRadius:0,tension:.3,...st.b}]},
+    data:{labels:lb,datasets},
     options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw.toLocaleString()}万円`}}},
+      plugins:{legend:{display:ret,position:'top',labels:{font:{size:11},boxWidth:12,padding:10}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw.toLocaleString()}万円`}}},
       scales:{x:{grid:{color:'rgba(0,0,0,.04)'},ticks:{maxTicksLimit:9,font:{size:10}}},
-        y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10},callback:v=>v>=10000?(v/10000).toFixed(1)+'億':v.toLocaleString()}}}}});
+        y:{stacked:ret,grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10},callback:v=>v>=10000?(v/10000).toFixed(1)+'億':v.toLocaleString()}}}}});
 }
 
 function updTable(rA,rB,q){
@@ -563,7 +591,7 @@ function updTable(rA,rB,q){
   const bl=ret?'':'B', al=ret?'':'A';
   $('th-r').innerHTML=`<th>年</th><th>歳</th>${q.hasSpouse?'<th>配</th>':''}
     ${sA?'<th>収入</th>':''}${sB?'<th>収入</th>':''}<th>支出</th>
-    ${sA?`<th>収支${al}</th>`:''}${sB?`<th>収支${bl}</th>`:''}${sA?`<th>資産${al}</th>`:''}${sB?`<th>資産${bl}</th>`:''}`;
+    ${sA?`<th>収支${al}</th>`:''}${sB?`<th>収支${bl}</th>`:''}${sA?`<th>資産${al}</th>`:''}${sB?(ret?'<th>現金</th><th>投資</th><th>資産</th>':`<th>資産${bl}</th>`):''}`;
   let h='';
   for(let i=0;i<rA.length;i++){
     const a=rA[i],b=rB[i]; let cls='',bdg='';
@@ -575,7 +603,7 @@ function updTable(rA,rB,q){
     h+=`<tr class="${cls.trim()}"><td>${a.year}${bdg}</td><td>${a.age}</td>${q.hasSpouse?`<td>${a.sa}</td>`:''}
       ${sA?`<td>${fmt(a.income)}</td>`:''}${sB?`<td>${fmt(b.income)}</td>`:''}<td>${fmt(a.exp)}</td>
       ${sA?`<td>${sgn(a.cf)}</td>`:''}${sB?`<td>${sgn(b.cf)}</td>`:''}
-      ${sA?`<td style="${cA}">${fmt(a.assets)}</td>`:''}${sB?`<td style="${cB}">${fmt(b.assets)}</td>`:''}</tr>`;
+      ${sA?`<td style="${cA}">${fmt(a.assets)}</td>`:''}${sB?(ret?`<td style="color:#0ea5e9">${fmt(b.cash)}</td><td style="color:#16a34a">${fmt(b.invest)}</td><td style="${cB}">${fmt(b.assets)}</td>`:`<td style="${cB}">${fmt(b.assets)}</td>`):''}</tr>`;
   }
   $('tb-b').innerHTML=h;
 }
@@ -589,7 +617,7 @@ function adjustRanges(){
 
 function save(){
   const o={numKids,mode};
-  ['r0','r1','r9','rAge','rSpAge','rK0','rK1','rK2','r3','r4','r2','rInf','r5','r5age','r6','r6age','r7','r8','rA','rB','rC','rD'].forEach(k=>o[k]=$(k).value);
+  ['r0','rCash','rReserve','r1','r9','rAge','rSpAge','rK0','rK1','rK2','r3','r4','r2','rInf','r5','r5age','r6','r6age','r7','r8','rA','rB','rC','rD'].forEach(k=>o[k]=$(k).value);
   o.cSpouse=$('cSpouse').checked;
   try{localStorage.setItem(KEY,JSON.stringify(o));}catch(e){}
 }
