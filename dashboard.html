@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CONTENT DASHBOARD - @haru_sideFIRE</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="googlebot" content="noindex, nofollow">
+<style>
+/* ============================
+   CSS — レイアウト・テーマ
+   ============================ */
+:root {
+  --bg: #1a1a2e;
+  --card: #16213e;
+  --card-hover: #1a2745;
+  --accent: #e94560;
+  --accent2: #0f3460;
+  --text: #eee;
+  --text-sub: #aab;
+  --green: #4caf50;
+  --yellow: #ffc107;
+  --blue: #4a90d9;
+  --orange: #ff9800;
+  --border: #2a2a4a;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+.header {
+  background: linear-gradient(135deg, var(--accent2), #0a1628);
+  padding: 20px 24px;
+  border-bottom: 2px solid var(--accent);
+}
+.header h1 { font-size: 22px; font-weight: 700; }
+.header .sub { color: var(--accent); font-size: 15px; margin-top: 2px; }
+.header .update-info { color: var(--text-sub); font-size: 13px; margin-top: 4px; }
+
+/* タブ */
+.tabs {
+  display: flex;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+.tab {
+  padding: 14px 24px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-sub);
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+  transition: all .2s;
+}
+.tab:hover { color: var(--text); background: rgba(255,255,255,.03); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* パネル */
+.panel { display: none; padding: 24px; }
+.panel.active { display: block; }
+
+/* カード共通 */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  transition: background .2s;
+}
+.card:hover { background: var(--card-hover); }
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.card-title { font-weight: 700; font-size: 16px; }
+
+/* バッジ */
+.badge {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.badge-published { background: var(--green); color: #fff; }
+.badge-draft { background: var(--yellow); color: #333; }
+.badge-planned { background: var(--blue); color: #fff; }
+.badge-idea { background: var(--orange); color: #fff; }
+.badge-posted { background: var(--green); color: #fff; }
+.badge-scheduled { background: var(--blue); color: #fff; }
+
+/* タグ */
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.tag {
+  background: rgba(255,255,255,.08);
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--text-sub);
+}
+
+/* カレンダー */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-top: 12px;
+}
+.cal-header { font-size: 13px; text-align: center; color: var(--text-sub); font-weight: 600; padding: 6px 0; }
+.cal-day {
+  min-height: 68px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 7px;
+  font-size: 13px;
+}
+.cal-day.today { border-color: var(--accent); background: rgba(233,69,96,.1); }
+.cal-day .day-num { font-weight: 700; margin-bottom: 2px; }
+.cal-day .event {
+  font-size: 12px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cal-day .event.note-ev { background: rgba(74,144,217,.3); color: #8bb8ea; }
+.cal-day .event.x-ev { background: rgba(233,69,96,.3); color: #f0a0b0; }
+.cal-empty { min-height: 68px; }
+
+/* プロフィール */
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+.stat-label { font-size: 13px; color: var(--text-sub); }
+.stat-value { font-size: 20px; font-weight: 700; }
+
+/* note本文プレビュー */
+.article-body { font-size: 15px; color: var(--text-sub); margin-top: 6px; line-height: 1.7; }
+.copy-btn {
+  background: var(--accent2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 8px;
+  transition: background .2s;
+}
+.copy-btn:hover { background: var(--accent); }
+.article-link-btn {
+  display: inline-block;
+  background: var(--accent2);
+  color: var(--text);
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  border: 1px solid var(--border);
+  transition: background .2s;
+}
+.article-link-btn:hover { background: var(--accent); }
+.toggle-btn {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  margin-top: 8px;
+  transition: all .2s;
+}
+.toggle-btn:hover { background: var(--accent2); }
+.toggle-btn.posted { background: rgba(76,175,80,.15); border-color: #4caf50; color: #a5d6a7; font-weight: 700; }
+.toggle-btn.posted:hover { background: rgba(76,175,80,.25); }
+.cal-day .event.x-ev.posted { opacity: .4; text-decoration: line-through; }
+
+/* 「コピーしてXを開く」メインボタン */
+.copy-go-btn {
+  background: #1da1f2;
+  color: #fff;
+  border: 1px solid #1da1f2;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  margin-top: 8px;
+  transition: all .2s;
+}
+.copy-go-btn:hover { background: #1a91da; }
+
+/* リセットボタン */
+.reset-btn {
+  background: transparent;
+  color: var(--text-sub);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all .2s;
+}
+.reset-btn:hover { background: var(--accent2); color: var(--text); }
+
+/* 手順ガイド */
+.workflow-guide {
+  background: rgba(29,161,242,.08);
+  border: 1px solid rgba(29,161,242,.3);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+.workflow-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #8ec4f2;
+  margin-bottom: 12px;
+}
+.workflow-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.wf-step {
+  font-size: 13px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.wf-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #1da1f2;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.workflow-note {
+  font-size: 11px;
+  color: var(--text-sub);
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+}
+
+/* セクションヘッダー */
+.section-title {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* 月ナビ */
+.cal-nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+.cal-nav button {
+  background: var(--accent2);
+  color: var(--text);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+}
+.cal-nav button:hover { background: var(--accent); }
+.cal-nav .cal-month-label { font-size: 18px; font-weight: 700; }
+
+@media (max-width: 600px) {
+  .panel { padding: 12px; }
+  .cal-day { min-height: 44px; padding: 2px 3px; }
+  .cal-day .event { font-size: 9px; }
+}
+</style>
+</head>
+<body>
+
+<script>
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  📝 DATA SECTION — ここだけ編集すれば全体に反映されます      ║
+// ╠══════════════════════════════════════════════════════════════╣
+// ║  status: "published" | "draft" | "planned" | "idea"         ║
+// ║  xStatus: "posted" | "scheduled"                            ║
+// ╚══════════════════════════════════════════════════════════════╝
+
+const DASHBOARD_DATA = {
+
+  // --- 最終更新日 ---
+  lastUpdated: "2026-06-18",
+
+  // --- プロフィール ---
+  profile: {
+    name: "はるパパ",
+    handle: "@haru_sideFIRE",
+    noteId: "lucid_zinnia7777",
+    age: 50,
+    location: "名古屋",
+    status: "完全サイドFIRE（2026年2月末退職／4月末でパート勤務終了）",
+  },
+
+  // --- note記事一覧 ---
+  articles: [
+    {
+      id: 1,
+      title: "【自己紹介】50歳パパがサイドFIREを目指すことにした話",
+      date: "2026-03-26",
+      status: "published",
+      tags: ["#サイドFIRE", "#自己紹介", "#50歳FIRE", "#セミリタイア"],
+      summary: "退職の経緯と決意表明。サイドFIREを目指す理由。",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/n13f0b8617eb6",
+    },
+    {
+      id: 2,
+      title: "50歳で20年以上勤めた会社を辞めた理由【後悔より解放感】",
+      date: "2026-03-29",
+      status: "published",
+      tags: ["#早期退職", "#50歳FIRE", "#後悔", "#解放感"],
+      summary: "20年以上勤めた会社を辞めた決断と、その後の心境。",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/n93c028d25abe",
+    },
+    {
+      id: 3,
+      title: "退職までの2年間、こっそりやっていた事【お金の準備全部話す】",
+      date: "2026-03-31",
+      status: "published",
+      tags: ["#退職準備", "#お金の準備", "#FIRE準備", "#資産形成"],
+      summary: "退職前2年間で行った資金準備の全貌を公開。",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/n5483b06d86aa",
+      amazonEmbed: "ほったらかし投資術（山崎元）",
+    },
+    {
+      id: 4,
+      title: "退職後1ヶ月目の資産を公開します【2026年3月末】",
+      date: "2026-04-02",
+      status: "published",
+      tags: ["#資産公開", "#サイドFIRE", "#新NISA", "#配当金生活"],
+      summary: "退職後1ヶ月目の資産公開。楽天証券・楽天銀行の内訳と詳細。",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/nc6806f033909",
+      amazonEmbed: "ほったらかし投資術（山崎元）",
+    },
+    {
+      id: 5,
+      title: "退職後の収入源、正直に話します【50歳サイドFIRE2ヶ月目】",
+      date: "2026-04-06",
+      status: "published",
+      tags: ["#サイドFIRE", "#50歳FIRE", "#配当金生活", "#新NISA", "#早期退職", "#セミリタイア", "#資産運用"],
+      summary: "配当金・パート・妻パート・副業の収支リアル公開。月▲5万の実態。",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/ncb34ef12af2f",
+    },
+    {
+      id: 6,
+      title: "iDeCo出口戦略、知らないと損する話【50歳サイドFIRE2ヶ月目】",
+      date: "2026-04-09",
+      status: "published",
+      tags: ["#iDeCo", "#出口戦略", "#退職金控除", "#50歳FIRE"],
+      summary: "退職金控除の仕組み・10年ルール・一時金vs年金の比較。",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/ncbb315d50615",
+      amazonEmbed: "「定年後」のお金の不安をなくす（大江英樹）",
+    },
+    {
+      id: 7,
+      title: "退職後の健康保険、どう選ぶ？任意継続・国保・扶養を5人家族でざっくりシミュレーション【50歳サイドFIRE2ヶ月目】",
+      date: "2026-04-13",
+      status: "published",
+      tags: ["#健康保険", "#任意継続", "#国民健康保険", "#退職後", "#サイドFIRE", "#50代", "#資産運用"],
+      summary: "任意継続 vs 国保 vs 扶養の比較。5人家族のシミュレーション。パート＋社会保険に方向転換した判断。",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/n0828743c0406",
+    },
+    {
+      id: 8,
+      title: "NISA貧乏は本当に正解か？50歳サイドFIREが悔やむ、「思い出の配当」という視点",
+      date: "2026-04-16",
+      status: "published",
+      tags: ["#サイドFIRE", "#FIRE", "#50代", "#新NISA", "#NISA貧乏", "#資産運用", "#思い出の配当", "#DIEWITHZERO"],
+      summary: "オピニオン記事。NISA貧乏は条件付きで正しい。でも「金融配当」「自己投資配当」「思い出配当」の3つの視点で公式を書き換える提案。",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/nec18fb6b426e",
+    },
+    {
+      id: 9,
+      title: "「ジュニアNISA、気づいたら終わってた」──後悔先に立たず。2027年こどもNISAで取り戻す家族NISA戦略",
+      date: "2026-04-23",
+      status: "published",
+      tags: ["#サイドFIRE", "#FIRE", "#50代", "#新NISA", "#こどもNISA", "#ジュニアNISA"],
+      summary: "娘のジュニアNISA80万円が149.1万円(+86.4%)に育った実績と、「もっと早く知ってればよかった」という後悔。2027年1月開始予定こどもNISA(年60万×10年=600万、贈与110万枠内に収まる)の活用計画。3%/5%/7%複利で17歳末・38歳時点までシミュレーション(5%で2,747万円)。夫NISA+妻NISA+こどもNISAの「家族NISA戦略完成形」。前回妻NISA記事の伏線回収。",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/n418d01a7f134",
+      amazonEmbed: "『いま君に伝えたいお金の話』(村上世彰)、『漫画 バビロン大富豪の教え』、『知らないと損する 退職・iDeCo出口戦略完全ガイド』",
+    },
+    {
+      id: 10,
+      title: "夫婦のお金は誰のもの？妻の新NISA満額に立ちはだかる「年110万円の壁」という違和感",
+      date: "2026-04-20",
+      status: "published",
+      tags: ["#サイドFIRE", "#FIRE", "#50代", "#新NISA", "#贈与税", "#夫婦のお金", "#資産運用", "#早期退職"],
+      summary: "妻の新NISA成長投資枠がまだ余っている現状と、贈与税110万円の壁への違和感。360万贈与すれば贈与税27.5万円（実質税率約7.6%）。我が家は「毎年110万円ルールでコツコツ」派。夫婦のお金の境界線について正直に考えたオピニオン記事。次回（こどもNISA・2027年1月開始予定）への導線あり。",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/nde1c41bd6378",
+      amazonEmbed: "NISA入門2冊（知りたいことシリーズ／世界一やさしい新NISA）",
+    },
+    // ※idea配列は ideas に分離（2026-04-27〜）。articles は published/draft のみ。
+    {
+      id: 11,
+      title: "楽天派の50歳が、なぜ\"SBI経済圏\"も併用し始めたのか",
+      date: "",
+      status: "draft",
+      tags: ["#サイドFIRE", "#FIRE", "#50代", "#資産運用", "#SBI証券", "#住信SBIネット銀行", "#SBI経済圏", "#楽天経済圏", "#目的別口座", "#お金の管理"],
+      summary: "楽天派だった50歳がSBI経済圏（住信SBIネット銀行＋SBI証券）も併用し始めた話。住信SBIの目的別口座6つで資金の見える化、SBI証券は分散・投資商品の幅。新版下書き完成（n2f59e636b7bb）、A8住信SBIアフィリ審査通過後にリンク埋込予定。",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/n2f59e636b7bb",
+    },
+    // ※Kindle本はarticles配列から外して別タブ（kindleBooks）で管理（2026-04-27〜）
+    {
+      id: 14,
+      title: "パート、辞めます。──サイドFIRE2ヶ月で早くも方向転換した話",
+      date: "2026-04-27",
+      status: "published",
+      tags: ["#サイドFIRE", "#FIRE", "#50代", "#早期退職", "#パート退職", "#失業手当"],
+      summary: "扶養条件のミスマッチと在宅→出社変更で退職決断。5月からハローワーク。次回2ヶ月目資産公開（有料化）の予告。",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/n13355d3308bc",
+    },
+    {
+      id: 15,
+      title: "退職後2ヶ月目の資産を公開します【2026年4月末】",
+      date: "2026-05-01",
+      status: "published",
+      tags: ["#サイドFIRE", "#FIRE", "#50代", "#資産運用", "#配当金生活", "#家計管理", "#早期退職"],
+      summary: "退職後2ヶ月目（4月末）の資産公開。資産内訳の比較表（投資信託・米国株・国内株・債券・現金）、4月の収支、固定資産税・双子大学関連費（多子世帯免除＋祖母教育援助で相殺）、月次ギャップ。3つの配当（金融・自己投資・思い出）で振り返る4月。シリーズ初の有料記事(¥300)。",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/n1a2c50e4cbaf",
+      amazonEmbed: "『ほったらかし投資術』(山崎元・全面改訂第3版)",
+    },
+    {
+      id: 16,
+      title: "50歳・3人扶養世帯の私が、双子の大学授業料を免除された話",
+      date: "2026-05-04",
+      status: "published",
+      tags: ["#サイドFIRE", "#50代", "#多子世帯", "#大学授業料無償化", "#3人扶養", "#教育費"],
+      summary: "2025年度から所得制限が撤廃された「多子世帯に対する大学等の授業料等無償化」を、3人扶養世帯（双子大学生＋娘小2）の立場で実体験ベースで解説。減免上限・申請主義・我が家の数字（年間100万円台前半カバー）・祖母からの教育援助で相殺した家族の支援。図解3枚（年度比較表・家族パターン・文科省問3-2切り抜き）。下書き完成・アイキャッチ済・公開直前。",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/nceae1577bf05",
+      publishedAt: "2026-05-04",
+    },
+    {
+      id: 17,
+      title: "妻を扶養に入れるには「収入が半分以下」が条件だった──50歳サイドFIRE、社会保険の落とし穴",
+      date: "2026-05-07",
+      status: "published",
+      tags: ["#サイドFIRE", "#FIRE", "#50代", "#社会保険", "#パート", "#退職後", "#早期退職"],
+      summary: "社会保険には「入れた」のに、配偶者を扶養に入れられない条件「被保険者の年収の1/2未満」を満たせず4月末退職。在宅→出社必須への変更も重なり、二重の落とし穴。アイキャッチ（天秤モチーフ・水彩タッチ）・関連記事カード文中分散（記事14・記事7）・引用ブロック出典記入・大江英樹本紹介あり。",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/na393864a789c",
+      publishedAt: "2026-05-07",
+    },
+    {
+      id: 18,
+      title: "失業手当はいくらもらえる？──パート2ヶ月の50歳が、ハローワークに行く前に調べた話",
+      date: "2026-05-11",
+      status: "published",
+      tags: ["#サイドFIRE", "#FIRE", "#50代", "#資産運用", "#失業手当", "#雇用保険", "#早期退職", "#ハローワーク", "#賃金日額", "#給付日数", "#日額", "#パート"],
+      summary: "ハローワーク行く前の予習記事。本業20年→パート2ヶ月→離職票5/20頃到着のケースで、給付日数（被保険者期間通算で20年以上扱い）と賃金日額（最後の事業所の直前6ヶ月で計算）を分離整理。自己都合 vs 特定理由離職者で150日 vs 330日の差。2025年8月改定後の最新数字（賃金日額上限17,740円・基本手当日額上限8,870円・月26万円ちょっと）。",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/ndc1c453b1c60",
+      publishedAt: "2026-05-11",
+    },
+    {
+      id: 19,
+      title: "『NISAの系譜』を出版しました──元祖英国ISAから2027年こどもNISAまで",
+      date: "2026-05-15",
+      status: "published",
+      publishedAt: "2026-05-15",
+      tags: ["#サイドFIRE", "#FIRE", "#50代", "#資産運用", "#Kindle出版", "#NISA", "#新NISA", "#こどもNISA", "#ジュニアNISA", "#英国ISA"],
+      summary: "Kindle本2冊目『NISAの系譜と使い分け完全ガイド』の出版告知＋第1章サンプル抜粋（NISAの「N」=Nippon、英国ISA1999年スタート、PEP/TESSAの後継、英国成人40%保有）。note記事でのNISA貧乏・ジュニアNISA後悔・妻NISAを本書で発展。ASIN: B0H1H9GM6D・¥350・Kindle Unlimited対応。",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/n643ca8b439ab",
+    },
+    {
+      id: 20,
+      title: "退職後の社会保険手続き、3つ誤算があった──書類を自作して、年金は別で、iDeCoはまだ口座もなかった",
+      date: "2026-05-18",
+      status: "published",
+      tags: ["#サイドFIRE", "#FIRE", "#50代", "#資産運用", "#任意継続", "#国民健康保険", "#国民年金", "#早期退職", "#退職後"],
+      summary: "任意継続申請で家族の収入証明書が必要→自作で対応。5人家族で任意継続vs国保シミュレーション（1年目は任意継続が月2.3万安い）。国民年金は別手続き（マイナポータルで申請）。iDeCo口座をまだ持っていなかった→楽天証券に申込。",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/n84b4a5675cea",
+    },
+    {
+      id: 21,
+      title: "退職金、まだ動かしていない。──現金を手にした50歳の正直な話",
+      date: "2026-05-28",
+      status: "published",
+      publishedAt: "2026-05-28",
+      tags: ["#サイドFIRE", "#FIRE", "#50代", "#資産運用", "#退職金", "#新NISA", "#現金比率", "#早期退職"],
+      summary: "退職金を含む現金を動かせない理由。自分の新NISA枠の使い方（特定口座オルカン売却vs退職金投入）、妻の成長投資枠の不足問題、「暴落待機資金」は半分言い訳かも、無職になって初めてわかった現金の安心感。",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/n1b7c319d38d8",
+    },
+    {
+      id: 22,
+      title: "ひとりだから自由で、ひとりだから寂しい。──50歳の3泊4日サウナ一人旅",
+      date: "2026-05-21",
+      status: "published",
+      tags: ["#サイドFIRE", "#FIRE", "#50代", "#資産運用", "#一人旅", "#サウナ", "#旅行", "#銭湯"],
+      summary: "3泊4日完全下道でサウナ3か所（岐阜・富山・滋賀）を巡る一人旅。スパ・アルプスの飲める天然水風呂、東尋坊で感じた孤独、北近江の無料くつろぎスペース。合計34,000円の記録。",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/ncf56ecee2642",
+      publishedAt: "2026-05-21",
+    },
+    {
+      id: 23,
+      title: "退職後の手続き、その後。──任意継続は承認、年金は差し戻し、iDeCoは止まった話",
+      date: "2026-05-25",
+      status: "published",
+      publishedAt: "2026-05-25",
+      tags: ["#サイドFIRE", "#FIRE", "#50代", "#資産運用", "#任意継続", "#国民年金", "#iDeCo", "#退職後", "#早期退職"],
+      summary: "任意継続は自作書類でも承認・5〜9月分納付書届いた。国民年金マイナポータルは差し戻し（資格喪失証明書が必要・まだ会社から未着）。DC/DB移換申出書は受理。iDeCo口座は書類不備で差し止め（移換可否決定通知書の提出順序の可能性）。4件中2件完了。",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/nceae959c8670",
+    },
+    {
+      id: 24,
+      title: "ハローワークに行ってきた。──退職から3ヶ月、初めての失業手当手続き",
+      date: "2026-06-04",
+      status: "published",
+      publishedAt: "2026-06-04",
+      tags: ["#サイドFIRE", "#FIRE", "#50代", "#早期退職", "#ハローワーク", "#失業手当", "#雇用保険", "#退職後"],
+      summary: "5/28ハローワーク初日体験記。持参物・待ち時間・一身上の都合か特定受給か（2025年4月改正で給付制限1ヶ月）・次回スケジュール（6/16説明会・6/25認定日）のリアル。",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/n14fd5553e681",
+    },
+    {
+      id: 25,
+      title: "退職後3ヶ月目の資産を公開します【完全サイドFIRE初月】",
+      date: "2026-06-01",
+      status: "published",
+      publishedAt: "2026-06-01",
+      tags: ["#サイドFIRE", "#FIRE", "#50代", "#資産運用", "#資産公開", "#配当金生活", "#家計管理", "#早期退職"],
+      summary: "退職後3ヶ月目・完全サイドFIRE初月の資産公開。収入と支出の内訳、月次ギャップのリアル。有料300円。",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/n1a33987794c8",
+    },
+    {
+      id: 26,
+      title: "老後の資産、何歳まで持つ？──不安だったので、FIREシミュレーターを自作した",
+      date: "2026-06-08",
+      status: "published",
+      publishedAt: "2026-06-08",
+      tags: ["#サイドFIRE", "#FIRE", "#50代", "#資産運用", "#シミュレーション", "#ライフプラン", "#早期退職", "#新NISA"],
+      summary: "退職3ヶ月で「資産が何歳まで持つか」不安になり、FIREシミュレーターを自作。AIと作った無料ツール紹介。現職継続vsサイドFIRE比較／取り崩しモード、年金・教育費・インフレ設定可。参考値の注意とフィードバック募集も明記。公開URL: haru-sidefire.github.io/fire-tools/",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/ncfaf6da07cd4",
+    },
+    {
+      id: 27,
+      title: "「全部投資」か「現金を残す」か——正論はわかっているのに",
+      date: "2026-06-11",
+      status: "published",
+      publishedAt: "2026-06-11",
+      tags: ["#サイドFIRE", "#FIRE", "#50代", "#資産運用", "#新NISA", "#取り崩し", "#早期退職", "#DIEWITHZERO"],
+      summary: "「新NISA枠720万を埋めたら現金が尽きる」と思ったが、投資を先に取り崩せば現金は残る＝順番の問題だった。ただし前提は最低限の生活費で、大きな出費は入っていない。だから増やして備えたい。でもそれはDIE WITH ZEROと矛盾する——正論と心の安定の間で揺れる本音。(v2で全面改稿)",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/n55226f64ce93",
+    },
+    {
+      id: 28,
+      title: "住民税の通知が来た。まさかのふるさと納税、上限を超えていた話",
+      date: "2026-06-15",
+      status: "draft",
+      tags: ["#サイドFIRE", "#FIRE", "#50代", "#資産運用", "#ふるさと納税", "#住民税", "#早期退職", "#退職後の手続き"],
+      summary: "退職後初の住民税通知（年税額約9万円）を検算したら、去年のふるさと納税が限度額オーバー（自己負担2,000円のはずが13,917円）。原因は息子2人の国民年金前納（約41万円）で社会保険料控除が増え、課税所得＝ふるさと納税の限度額が縮んだこと。節税が別の枠を削っていた話。退職した年は限度額が激減するので要注意。下書き完成（n87b8afdf75eb）・6/15公開予定。",
+      noteUrl: "https://note.com/lucid_zinnia7777/n/n87b8afdf75eb",
+    },
+    {
+      id: 29,
+      title: "ハローワークの雇用保険説明会に行ってきた（仮）",
+      date: "2026-06-18",
+      status: "planned",
+      tags: ["#サイドFIRE", "#FIRE", "#50代", "#早期退職", "#ハローワーク", "#失業手当", "#雇用保険", "#退職後"],
+      summary: "6/16の雇用保険受給説明会の体験記（予定）。失業認定の流れ、求職活動実績の数え方、次回認定日（6/25）まで。退職後シリーズ（失業手当→ハローワーク手続き）の続編。仮タイトル・下書き未着手。",
+      noteUrl: "",
+    },
+  ],
+
+  // --- noteアイデア（連番ID持たず、企画段階の記事案） ---
+  // ※確定した記事は articles に planned で移動（id 16/17/18/19/20/21 へ移動済み）
+  ideas: [
+    {
+      title: "失業認定と求職活動実績のリアル【50歳サイドFIRE】",
+      tags: ["#サイドFIRE", "#50代", "#失業手当", "#ハローワーク", "#求職活動実績", "#早期退職"],
+      summary: "月2回の求職活動実績、セミナー参加・職業相談で実績にできる仕組み。サイドFIRE勢が失業給付もらいながら投資続けるグレーゾーン論。記事18・20とのシリーズ完結編候補。",
+    },
+    {
+      title: "サイドFIRE3ヶ月目の家計簿全公開【2026年5月】",
+      tags: ["#サイドFIRE", "#家計簿", "#50代", "#早期退職"],
+      summary: "本業退職から3ヶ月、生活費の実態と想定との差。来月どう変えるかの振り返り。差し込みネタ候補。",
+    },
+    {
+      title: "サンクコスト・退職して3ヶ月で気づいたこと【肩書き喪失と心境】",
+      tags: ["#サイドFIRE", "#50代", "#早期退職", "#セミリタイア"],
+      summary: "退職して3ヶ月、肩書きを失って気づいた価値観の変化。朝の過ごし方・平日昼間の使い方・妻との関係。差し込みネタ候補。",
+    },
+    {
+      title: "今の100万円が、老後に700万円の差になる話【複利の実証】",
+      tags: ["#サイドFIRE", "#FIRE", "#50代", "#資産運用", "#複利"],
+      summary: "実質利回り4.5%・45年で7.25倍。シミュレータで「今の100万」が老後の差に化けるのを可視化。はるパパ持論『複利は金額より時間が効く』の実証。画面キャプチャ付き。",
+    },
+    {
+      title: "教育費のヤマで資産が一番へこむのは61〜64歳だった",
+      tags: ["#サイドFIRE", "#50代", "#教育費", "#大学費用", "#資産運用"],
+      summary: "娘の大学費用（年190万）で資産がV字に谷を作る時期を、自作シミュレータで可視化。年金開始前の山場をどう乗り切るか。子持ちFIRE世帯に刺さる。",
+    },
+    {
+      title: "インフレを入れたら、老後資産が2.2億→4,900万になった",
+      tags: ["#サイドFIRE", "#FIRE", "#50代", "#資産運用", "#インフレ"],
+      summary: "インフレ無視の危険。実質利回りの考え方。同じ条件でもインフレ2%考慮で95歳資産が激減。『資産は持つはず』の楽観への警鐘。シミュレータ画面付き。",
+    },
+  ],
+
+  // --- Kindle本一覧（noteとは別管理） ---
+  kindleBooks: [
+    {
+      id: 1,
+      title: "知らないと損する 退職・iDeCo出口戦略完全ガイド",
+      status: "published",
+      publishDate: "2026-04-15",
+      asin: "B0GXB22DQ3",
+      price: "¥350",
+      affiliateUrl: "https://amzn.to/4tHe5nc",
+      pages: "約60ページ（個人出版）",
+      summary: "退職金控除・iDeCo受取順・10年ルール等を50代向けに7つのポイントで解説。退職前に知りたかった出口戦略を1冊にまとめた。",
+      tags: ["#iDeCo", "#出口戦略", "#退職金", "#50代", "#サイドFIRE"],
+    },
+    {
+      id: 2,
+      title: "知らないと損する NISAの系譜と使い分け完全ガイド",
+      status: "published",
+      publishDate: "2026-05-12",
+      asin: "B0H1H9GM6D",
+      price: "¥350",
+      affiliateUrl: "https://www.amazon.co.jp/dp/B0H1H9GM6D/?tag=harusidefire5-22",
+      pages: "104ページ（全8章）",
+      summary: "英国ISA（1999年）から2027年こどもNISAまで20年以上の制度変遷を網羅。旧NISA→新NISA→こどもNISAの使い分け戦略と家族最大化。note記事19（5/15公開）で告知連動。",
+      tags: ["#新NISA", "#旧NISA", "#こどもNISA", "#家族NISA"],
+    },
+  ],
+
+  // --- Kindleアイデア（次に書きたい本の企画案） ---
+  kindleIdeas: [
+    {
+      title: "50代の社会保険・扶養完全ガイド",
+      tags: ["#社会保険", "#扶養", "#50代", "#退職後"],
+      summary: "退職後の社会保険選択（任意継続・国保・扶養）と妻のパート扶養条件のリアル。家族のミスマッチ事例も含めて1冊に。",
+    },
+    {
+      title: "50代ハローワーク完全マニュアル：失業手当を満額もらう",
+      tags: ["#ハローワーク", "#失業手当", "#50代", "#早期退職"],
+      summary: "自己都合退職×サイドFIRE目的という珍しいケースの実体験。給付制限・受給期間・職業訓練・求職活動実績の実態を1冊にまとめる。",
+    },
+  ],
+
+  // --- X投稿一覧 ---
+  xPosts: [
+    {
+      id: 1,
+      date: "2026-04-06",
+      status: "posted",
+      text: "【note更新📝】\n退職後の収入源、正直に全部話します\n配当・パート・妻パート…\nそれでも毎月、赤字。\nリアルな数字を全部公開しました👇\n#FIRE #50代 #早期退職 #新NISA",
+      linkedArticle: 5,
+    },
+    {
+      id: 2,
+      date: "2026-04-07",
+      status: "posted",
+      text: "サイドFIRE2ヶ月目。\n毎月▲5万の赤字、怖くないの？と聞かれる。\n正直、計算上は問題ない。\nでも「心理的な不安」はまた別の話。\nこの感覚、経験者にしかわからない。\n#FIRE #サイドFIRE #50代 #早期退職",
+      linkedArticle: null,
+    },
+    {
+      id: 3,
+      date: "2026-04-09",
+      status: "posted",
+      text: "【note更新📝】\niDeCo出口戦略、50歳の私はこう考える\n・退職金控除の10年ルールとは？\n・一時金vs年金、どっちが得？\n・私の結論はこれ👇\n#iDeCo #出口戦略 #FIRE #50代",
+      linkedArticle: 6,
+    },
+    {
+      id: 4,
+      date: "2026-04-10",
+      status: "posted",
+      text: "退職して2ヶ月。\n一番変わったのは「朝の感覚」。\n目覚ましなしで起きて、娘を送り出して、コーヒー淹れる。\nたったそれだけで幸福度が全然違う。\n#サイドFIRE #50代 #早期退職 #暮らし",
+      linkedArticle: null,
+    },
+    {
+      id: 5,
+      date: "2026-04-11",
+      status: "posted",
+      text: "サイドFIRE後の節約、意外と楽しい。\n会社員時代：コンビニ弁当＋缶コーヒー\n今：自炊＋水筒持参\n月の食費、2万くらい減った気がする。\nストレス減ると無駄遣いも減る。\n#FIRE #節約 #50代 #サイドFIRE",
+      linkedArticle: null,
+    },
+    {
+      id: 6,
+      date: "2026-04-12",
+      status: "posted",
+      text: "退職後、地味に助かってること。\n「パートで社会保険に入れる」こと。\n国保の保険料、想像以上に高い。\n任意継続とどっちが得か、次のnoteで徹底比較します。\n#健康保険 #退職後 #FIRE #50代",
+      linkedArticle: 7,
+    },
+    {
+      id: 7,
+      date: "2026-04-14",
+      status: "posted",
+      text: "最近よく聞く「NISA貧乏」。\n老後のために今を削りすぎて、旅行も外食も我慢…。\n50歳になった私が一番怖いのは、実は「資産が増えなかったこと」じゃない。\n週末のnoteで書きます。\n#NISA貧乏 #新NISA #サイドFIRE #50代",
+      linkedArticle: null,
+    },
+    {
+      id: 8,
+      date: "2026-04-15",
+      status: "posted",
+      text: "月3万円を20年積み立てたら約1,233万円。\n同じ3万円を40年積み立てたら約4,578万円。\n期間が2倍で、最終額は約3.7倍。\n複利は「金額」より「時間」が効く。\nだから若い時間の使い方は、慎重に。\n#新NISA #複利 #サイドFIRE #FIRE",
+      linkedArticle: null,
+    },
+    {
+      id: 9,
+      date: "2026-04-16",
+      status: "posted",
+      text: "【note更新📝】\nNISA貧乏は本当に正解か？\n50歳になって「悔やんで」初めて見えた景色がある。\n\n・金融配当\n・自己投資の配当\n・思い出の配当\n\n3つの配当で公式を書き換える話👇\nhttps://note.com/lucid_zinnia7777/n/nec18fb6b426e\n#NISA貧乏 #新NISA #FIRE #50代 #DIEWITHZERO",
+      linkedArticle: 8,
+    },
+    {
+      id: 10,
+      type: "stock",
+      date: "",
+      status: "scheduled",
+      text: "退職して気づいた一冊。\n\n『お金の大学』の「目的別口座で見える化」の章。\n会社員時代は流してたのに、収入が不安定になった瞬間「これだ」と腹落ち。\n\n50代で気づくのは遅い📚\n\n▼Amazon\nhttps://amzn.to/4t3dgp3\n\n#PR #サイドFIRE #50代",
+      linkedArticle: null,
+    },
+    {
+      id: 15,
+      date: "2026-04-13",
+      status: "posted",
+      text: "【note更新📝】\n退職後の健康保険、どう選ぶ？\n\n任意継続・国保・扶養の3択を\n5人家族でざっくりシミュレーションしました。\n\n・1年目は任意継続が有利な理由\n・2年目に国保へ切り替えるワザ\n・私が選んだ「第4の道」とは？\n\n👇\nhttps://note.com/lucid_zinnia7777/n/n0828743c0406\n\n#サイドFIRE #健康保険 #退職後 #50代 #FIRE",
+      linkedArticle: 7,
+    },
+    {
+      id: 11,
+      date: "2026-04-17",
+      status: "posted",
+      text: "50歳で一番刺さった本。\n\n『DIE WITH ZERO』\n貯めるだけじゃなく「経験に使う時期」がある。\n\n資産は増えても「思い出の配当」は取り損ねてきた…と気づかされた📚\n\n▼Amazon\nhttps://amzn.to/4mmC4FU\n\n#PR #FIRE #50代",
+      linkedArticle: null,
+    },
+    {
+      id: 12,
+      type: "stock",
+      date: "",
+      status: "scheduled",
+      text: "退職前に一番救われた本。\n\n山崎元『ほったらかし投資術』\n\n結論：オルカン or S&P500を積立てて放置。\n\n50代で迷子の人こそ📚\n¥990で一生モノ。\n\n▼Amazon\nhttps://amzn.to/41mqSj1\n\n#PR #インデックス投資 #FIRE",
+      linkedArticle: null,
+    },
+    {
+      id: 13,
+      type: "stock",
+      date: "",
+      status: "scheduled",
+      text: "50代退職組の必読書。\n\n大江英樹『「定年後」のお金の不安をなくす』\n\n年金・退職金・iDeCo出口・医療費…\n落とし穴を全部事前に教えてくれる📚\n\n退職後マネー実務の決定版。\n\n▼Amazon\nhttps://amzn.to/3Q50Qyc\n\n#PR #50代 #iDeCo",
+      linkedArticle: null,
+    },
+    {
+      id: 14,
+      date: "2026-04-23",
+      status: "scheduled",
+      text: "娘にも読ませたい1冊。\n\n『漫画 バビロン大富豪の教え』\n\n「収入の10分の1を貯金せよ」\n2000年以上前から答えは決まってた📚\n\n漫画なら子どもと一緒に読める。\n\n▼Amazon\nhttps://amzn.to/41OzOOc\n\n#PR #資産形成 #FIRE #50代",
+      linkedArticle: null,
+    },
+    // --- Kindle出版 告知ポスト ---
+    {
+      id: 16,
+      date: "2026-04-15",
+      status: "posted",
+      text: "【Kindle出版📕】\n\n『知らないと損する\n退職・iDeCo出口戦略完全ガイド』¥350\n\n受取順を間違えると数十万円損するiDeCo。\n\n50代が今すぐ確認すべき7つのポイントをまとめました。\n\n▼Amazon\nhttps://amzn.to/4tHe5nc\n\n#PR #Kindle出版 #iDeCo #50代 #サイドFIRE",
+      linkedArticle: 12,
+    },
+    {
+      id: 17,
+      date: "2026-04-17",
+      status: "posted",
+      text: "Kindle出版の裏側。\n\n50歳・退職2ヶ月・副業経験ゼロ。\nそんな私がKindle本を1冊出せた。\n\n原稿はClaudeと一緒に書いて、\n表紙もCanvaで自作。\nKDPの申請まで1日で完了。\n\n「自分には無理」と思ってる人ほど、\n一歩が意外と近いかもしれない。\n\n#Kindle出版 #サイドFIRE #50代 #副業",
+      linkedArticle: 12,
+    },
+    {
+      id: 18,
+      type: "stock",
+      date: "",
+      status: "scheduled",
+      text: "退職前に知りたかった。\n\n・退職金とiDeCo、受け取る「順番」で税金が変わる\n・退職所得控除の「10年ルール」\n・一時金vs年金、どっちが得？\n\n全部まとめてKindleに書きました📕\n¥350です。\n\n▼Amazon\nhttps://amzn.to/4tHe5nc\n\n#PR #iDeCo #退職金 #出口戦略 #50代 #FIRE",
+      linkedArticle: 12,
+    },
+    // --- 記事10「妻の新NISA」告知ポスト ---
+    {
+      id: 19,
+      date: "2026-04-18",
+      status: "posted",
+      text: "「妻の新NISAも満額で埋めたい」\nそう思った瞬間、\n立ちはだかるのが年110万円の壁。\n\n共働き25年、\n家庭を支えてきたのは二人。\nなのに夫名義から妻名義に動かすと\n法的には「贈与」扱い。\n\nこの違和感、\n同世代の夫婦なら…？\n\n#新NISA #夫婦のお金 #50代 #FIRE",
+      linkedArticle: 10,
+    },
+    {
+      id: 20,
+      date: "2026-04-19",
+      status: "posted",
+      text: "【夫婦のお金のリアル】\n\n妻の新NISA年360万を満額にしたい\n↓\n贈与税を計算してみた\n↓\n(360-110)×15%-10万\n＝ 27.5万円\n\n実質税率7.6%。\n20年後の非課税メリットで\n計算上はペイするけど…\n\nそれでも払う気になれない理由、\n明日のnoteで書きます。\n\n#新NISA #贈与税 #FIRE",
+      linkedArticle: 10,
+    },
+    {
+      id: 21,
+      date: "2026-04-20",
+      status: "posted",
+      text: "【note更新📝】\n\n夫婦のお金は誰のもの？\n妻の新NISA満額に立ちはだかる\n「年110万円の壁」という違和感\n\n・贈与税27.5万円の計算\n・夫婦別産制と実生活のズレ\n・我が家の結論\n\n50歳サイドFIRE、正直に書きました👇\nhttps://note.com/lucid_zinnia7777/n/nde1c41bd6378\n\n#新NISA #夫婦のお金 #FIRE #50代",
+      linkedArticle: 10,
+    },
+    {
+      id: 22,
+      type: "stock",
+      date: "2026-04-21",
+      status: "posted",
+      text: "娘が生まれたのは2018年。\n\nジュニアNISA廃止まで、\n丸6年使えたはずなのに\n実際使えたのは最後の1年だけ。\n\n80万円しか入れられなかった、\nという小さな後悔。\n\nでも、その80万円が今…？\n\n続きは木曜のnoteで📝\n\n#ジュニアNISA #こどもNISA #FIRE",
+      linkedArticle: 9,
+    },
+    {
+      id: 23,
+      date: "2026-04-22",
+      status: "posted",
+      text: "【娘のジュニアNISA 80万円】\n　↓ 約2年半\n【1,491,000円／+86.4%】\n\n最後の1年しか\n使えなかった後悔が、\n少しだけ癒される数字。\n\n2027年1月、\nこどもNISAで\n娘の600万枠を取り戻しに。\n\n詳細は明日のnote🧮\n\n#こどもNISA #FIRE",
+      linkedArticle: 9,
+    },
+    {
+      id: 24,
+      date: "2026-04-23",
+      status: "posted",
+      text: "【note更新📝】\n\n「ジュニアNISA、\n気づいたら終わってた」\n\n2027年こどもNISAで\n取り戻す家族NISA戦略\n\n・娘の80万→149万\n・60万×10年シミュ\n・家族NISA完成形\n\n👇\nhttps://note.com/lucid_zinnia7777/n/n418d01a7f134\n\n#こどもNISA #FIRE",
+      linkedArticle: 9,
+    },
+    // --- 記事14「パート退職」告知ポスト ---
+    {
+      id: 25,
+      date: "2026-04-26",
+      status: "posted",
+      text: "サイドFIREって、\n計画通りにいかない。\n\n社会保険の扶養条件、\n在宅ワークの前提崩壊…\n\n2ヶ月目で早くも方向転換。\n\n明日のnoteで正直に書きます📝\n\n#サイドFIRE #50代 #早期退職 #FIRE",
+      linkedArticle: 14,
+    },
+    {
+      id: 26,
+      date: "2026-04-27",
+      status: "posted",
+      text: "【note更新📝】\n\nパート、辞めます。\n──サイドFIRE2ヶ月で\n早くも方向転換した話\n\n・扶養に入れない問題\n・在宅→出社必須に\n・5月からハローワークへ\n\n👇\nhttps://note.com/lucid_zinnia7777/n/n13355d3308bc\n\n#サイドFIRE #FIRE #50代 #早期退職",
+      linkedArticle: 14,
+    },
+    {
+      id: 28,
+      date: "2026-04-30",
+      status: "posted",
+      text: "明日5/1にnote更新します📝\n\n退職後2ヶ月目の資産公開\n（シリーズ初の有料記事）\n\n・総資産が節目に\n・固定資産税の重い月\n・双子の大学費用…\nだけど多子世帯免除で乗り切った\n\n50代サイドFIREのリアル👇\n\n#サイドFIRE #FIRE #50代",
+      linkedArticle: 15,
+    },
+    {
+      id: 29,
+      date: "2026-05-01",
+      status: "posted",
+      text: "資産公開記事を有料にした理由。\n\n数字をどこまで見せるか、\nずっと迷ってた。\n\n「公開しすぎ」のリスクと、\n「数字を見せないと伝わらない」\nリアルの間で。\n\n本当に読みたい人だけに届くように\n300円の壁を置いた。\n\n👇\nhttps://note.com/lucid_zinnia7777/n/n1a2c50e4cbaf\n\n#サイドFIRE #note有料記事",
+      linkedArticle: 15,
+    },
+    {
+      id: 30,
+      date: "2026-05-02",
+      status: "posted",
+      text: "資産公開記事を有料にした理由。\n\n数字をどこまで見せるか、\nずっと迷ってた。\n\n「公開しすぎ」のリスクと、\n「数字を見せないと伝わらない」\nリアルの間で。\n\n本当に読みたい人だけに届くように\n300円の壁を置いた。\n\n#サイドFIRE #note有料記事",
+      linkedArticle: 15,
+    },
+    // --- 記事16「双子の大学授業料免除」関連ポスト ---
+    {
+      id: 33,
+      date: "2026-05-03",
+      status: "posted",
+      text: "明日のnote、出します📘\n\n「50歳・3人扶養世帯の私が、\n双子の大学授業料を免除された話」\n\n2025年度の制度改正で、\n所得制限なしで使えるように。\n\n申請主義です。\n知らないと使えない。\n\n5/4（月）公開予定。\n\n#サイドFIRE #50代 #多子世帯 #教育費",
+      linkedArticle: 16,
+    },
+    {
+      id: 34,
+      date: "2026-05-04",
+      status: "posted",
+      text: "新しいnote記事📘\n\n「50歳・3人扶養世帯の私が、\n双子の大学授業料を免除された話」\n\n所得制限なし。\n3人扶養していれば対象。\n\nただし申請主義。\n知っている人だけが使える制度。\n\n👇\nhttps://note.com/lucid_zinnia7777/n/nceae1577bf05\n\n#サイドFIRE #多子世帯 #50代",
+      linkedArticle: 16,
+    },
+    // --- Kindle本2冊目「NISAの系譜と使い分け」予告ポスト ---
+    {
+      id: 31,
+      type: "stock",
+      date: "",
+      status: "scheduled",
+      text: "Kindle本2冊目、原稿完成📘\n\n『知らないと損する\nNISAの系譜と使い分け完全ガイド』\n\n・旧NISAで失敗したこと\n・新NISAで取り戻した戦略\n・こどもNISAで娘の枠を埋め直す家族設計\n\n5月中旬リリース予定（¥350想定）。\n\n#Kindle出版 #新NISA #FIRE #50代",
+      linkedArticle: null,
+    },
+    // --- 記事17「社会保険・扶養の落とし穴」関連ポスト ---
+    {
+      id: 35,
+      date: "2026-05-06",
+      status: "posted",
+      text: "明日5/7（木）夕方、新しいnote記事📝\n\n「妻を扶養に入れるには『収入が半分以下』が条件だった」\n\n50歳でパートに入って社会保険には入れたけど、\n扶養条件のミスマッチで4月末退職。\n\n社会保険の落とし穴、リアル体験記。\n\n#サイドFIRE #FIRE #50代 #社会保険",
+      linkedArticle: 17,
+    },
+    {
+      id: 36,
+      date: "2026-05-07",
+      status: "posted",
+      text: "新しいnote記事📝\n\n「妻を扶養に入れるには『収入が半分以下』が条件だった」\n\n社会保険には入れても、\n扶養に入れられない条件があった話。\n\n50歳サイドFIREのリアル体験記。\n\n👇\nhttps://note.com/lucid_zinnia7777/n/na393864a789c\n\n#サイドFIRE #FIRE #50代 #社会保険",
+      linkedArticle: 17,
+    },
+    // --- 記事18「失業手当の予習」関連ポスト ---
+    {
+      id: 37,
+      date: "2026-05-10",
+      status: "posted",
+      text: "明日5/11、新記事公開🌱\n\n「失業手当はいくらもらえる？」\n\n50歳サイドFIRE、本業20年→パート2ヶ月の私の場合、ハローワークに行く前に調べてみた話\n\n#FIRE #50代 #早期退職 #失業手当",
+      linkedArticle: 18,
+    },
+    {
+      id: 38,
+      date: "2026-05-11",
+      status: "posted",
+      text: "本日note公開🌱\n\n「失業手当はいくらもらえる？──パート2ヶ月の50歳が、ハロワに行く前に調べた話」\n\n自己都合 vs 特定理由離職者で給付日数が150日 → 330日\n\n▼ note記事はこちら\nhttps://note.com/lucid_zinnia7777/n/ndc1c453b1c60\n\n#FIRE #50代 #早期退職 #失業手当",
+      linkedArticle: 18,
+    },
+    // --- 記事18フォロー＆記事19告知関連（5/12〜5/18） ---
+    {
+      id: 40,
+      date: "2026-05-14",
+      status: "posted",
+      text: "明日note更新します🔔\n\n50歳の私が、Kindle本2冊目を出した話。\n\nタイトルは『NISAの系譜と使い分け完全ガイド』。\n\n元祖の英国ISAから2027年こどもNISAまで、20年以上の制度史を1冊にまとめました。\n\n明日夕方公開予定。\n\n#FIRE #50代 #NISA #Kindle",
+      linkedArticle: 19,
+    },
+    {
+      id: 41,
+      date: "2026-05-15",
+      status: "posted",
+      text: "note更新しました📚\n\nKindle本2冊目『NISAの系譜と使い分け完全ガイド』を出しました。\n\n正直に言うと、私が本格的に投資を始めたのは2023年──つみたてNISA最後の年から。\n「制度に翻弄された当事者」が書いた1冊です。\n\n▼ note記事はこちら\nhttps://note.com/lucid_zinnia7777/n/n643ca8b439ab\n\n#FIRE #50代 #NISA",
+      linkedArticle: 19,
+    },
+    {
+      id: 42,
+      date: "2026-05-15",
+      status: "posted",
+      text: "昨日告知した『NISAの系譜』、章立てだけ少し。\n\n第1章 元祖英国ISA（1999〜）\n第3章 ジュニアNISA失敗\n第5章 2024年新NISA改革\n第6章 2027年こどもNISA\n第8章 家族3人分のNISA最大化\n\n50代でNISAに迷う方へ📚\n\n#FIRE #50代 #NISA #投資",
+      linkedArticle: 19,
+    },
+    {
+      id: 43,
+      date: "2026-05-16",
+      status: "scheduled",
+      text: "ちょっと余談。\n\n3月にSBI証券を口座開設したら、A8.netのセルフバック経由で¥3,750もらえた。\n\n人生で初めてアフィリ経由でお金が入った瞬間🪙\n\n50歳でも初収益。何事も始めてみるものだなと。\n\n#サイドFIRE #50代 #A8net #セルフバック",
+      linkedArticle: null,
+    },
+    {
+      id: 44,
+      date: "2026-05-17",
+      status: "posted",
+      text: "明日、健康保険の任意継続申請を発送予定📮\n\n書類集めが意外と面倒だった。家族の年収証明…こんなのも要るんだ。\n\n電話で済まそうと思ったら、書類郵送が必要と判明。\n\n詳しい話は次のnoteで書こうと思います。\n\n#FIRE #50代 #健康保険 #任意継続",
+      linkedArticle: 20,
+    },
+    {
+      id: 45,
+      date: "2026-05-18",
+      status: "posted",
+      text: "本日note更新予定📝\n\n「健康保険の任意継続、書類が思ったより面倒だった」\n\n家族の年収証明まで集めるとは。退職後の手続きあるある。\n\n50歳サイドFIREのリアル体験記。\n\n▼ note記事はこちら\nhttps://note.com/lucid_zinnia7777/n/n84b4a5675cea\n\n#FIRE #50代 #健康保険 #任意継続 #退職後",
+      linkedArticle: 20,
+    },
+    {
+      id: 46,
+      date: "2026-05-21",
+      status: "posted",
+      text: "3泊4日、完全下道でサウナ3か所。\n岐阜→富山→滋賀、34,000円。\n\n気を使わない時間は最高だった。\nでも東尋坊は30分で帰った。\n\n▼ note\nhttps://note.com/lucid_zinnia7777/n/ncf56ecee2642\n\n#FIRE #50代 #一人旅 #サウナ",
+      linkedArticle: 22,
+    },
+    {
+      id: 49,
+      date: "2026-05-22",
+      status: "posted",
+      text: "昨日、旅noteを書きました📝\n\n3泊4日・完全下道でサウナ3か所。\n一人旅って、気を使わない分だけ自由だった。\n\nでも東尋坊は30分で帰った。\n\n▼ note記事はこちら\nhttps://note.com/lucid_zinnia7777/n/ncf56ecee2642\n\n#FIRE #50代 #一人旅 #サウナ",
+      linkedArticle: 22,
+    },
+    {
+      id: 50,
+      date: "2026-05-23",
+      status: "posted",
+      text: "一人旅もいいけど、家族の休みもやっぱりいい。\n\n子どもと過ごす時間、退職してから増えた。\nこれもサイドFIREの配当かもしれない。\n\n#FIRE #50代 #サイドFIRE #家族 #早期退職",
+      linkedArticle: null,
+    },
+    {
+      id: 47,
+      date: "2026-05-24",
+      status: "posted",
+      text: "退職後の手続き、続報。\n\n任意継続は承認。でも国民年金は差し戻し。iDeCoは止まってる。\n\n書類がそろわないと先に進めない、というループ中。\n\n明日のnoteで詳しく書きます📝\n\n#FIRE #50代 #任意継続 #iDeCo #退職後",
+      linkedArticle: 23,
+    },
+    {
+      id: 48,
+      date: "2026-05-25",
+      status: "posted",
+      text: "本日note更新📝\n\n任意継続は通った。\n年金は差し戻し、iDeCoは止まってる。\n\n4件中2件が未完了のまま。\n\n▼ note記事はこちら\nhttps://note.com/lucid_zinnia7777/n/nceae959c8670\n\n#FIRE #50代 #任意継続 #iDeCo #退職後",
+      linkedArticle: 23,
+    },
+    {
+      id: 51,
+      date: "2026-05-26",
+      status: "posted",
+      text: "無職になって初めてわかったことがある。\n\n現金の安心感は、数字じゃ測れない。\n\n配当も積立もある。\nそれでも給与がないだけで、残高が減るたびに\nなんとなく不安になる。\n\n理屈より感情が先に動く。\nこれが今の正直なところだ。\n\n#FIRE #50代 #サイドFIRE #早期退職",
+      linkedArticle: null,
+    },
+    {
+      id: 52,
+      date: "2026-05-27",
+      status: "posted",
+      text: "退職金、振り込まれてから3ヶ月。\n\nまだ1円も動かしていない。\n\n明日のnoteで、その理由を正直に書きます🖊️\n\n#FIRE #50代 #退職金 #早期退職",
+      linkedArticle: 21,
+    },
+    {
+      id: 53,
+      date: "2026-05-28",
+      status: "posted",
+      text: "退職金、まだ動かせていない。\n\n全部投資すべきはわかってる。\n\nでも無職になって初めてわかった。\n現金の安心感は、数字以上の重みがある。\n\n▼ note記事はこちら\nhttps://note.com/lucid_zinnia7777/n/n1b7c319d38d8\n\n#FIRE #50代 #早期退職 #退職金",
+      linkedArticle: 21,
+    },
+    {
+      id: 54,
+      date: "2026-05-29",
+      status: "posted",
+      text: "昨日、ハローワークに初めて行ってきた。\n\n離職票が届いたのが27日。\n翌日には区役所で国民年金の切り替えも。\n\n退職から3ヶ月。\n手続きがやっと動き始めた気がする。\n\n#FIRE #50代 #早期退職 #ハローワーク",
+      linkedArticle: null,
+    },
+    {
+      id: 55,
+      date: "2026-05-30",
+      status: "posted",
+      text: "カーテン閉めて、おやつ用意して、家族みんなで映画🍿\n\nおうちで映画館。\n\n子どもが膝に乗ってくる。\nポップコーン食べながら画面を見入ってた。\n\nこういう時間が、退職してからちゃんと増えた。\n\n#FIRE #50代 #サイドFIRE #家族",
+      linkedArticle: null,
+    },
+    {
+      id: 56,
+      date: "2026-05-31",
+      status: "posted",
+      text: "明日6/1（月）、退職後3ヶ月目の資産を公開します📊\n\n現金は減り、株は増えた。\n退職金は、まだ動かしていない。\n\n正直な数字、全部出します。\n\n有料（300円）・冒頭は無料で読めます。\n\n#FIRE #50代 #資産運用 #サイドFIRE",
+      linkedArticle: null,
+    },
+    {
+      id: 57,
+      date: "2026-06-01",
+      status: "posted",
+      text: "退職後3ヶ月目の資産、公開しました📊\n\n完全サイドFIRE初月。\n\n現金は減り、株は増えた。\n退職金は、まだ動かしていない。\n\n有料（300円）・冒頭は無料で読めます。\n\n▼ note記事はこちら\nhttps://note.com/lucid_zinnia7777/n/n1a33987794c8\n\n#FIRE #50代 #資産運用 #サイドFIRE",
+      linkedArticle: 25,
+    },
+    {
+      id: 58,
+      date: "2026-06-03",
+      status: "posted",
+      text: "今日もジム行こうかな。\n\n特に予定のない水曜日。\n退職してから、こういう日が増えた。\n\n走るか、泳ぐか、サウナか。\nまあ、ゆっくり決めよう。\n\n#FIRE #50代 #サイドFIRE #筋トレ",
+      linkedArticle: null,
+    },
+    {
+      id: 59,
+      date: "2026-06-03",
+      status: "posted",
+      text: "明日noteを更新します📝\n\nハローワーク初日、2時間の記録。\n\n持ち物、待ち時間、一身上か特定受給か。\n\n50歳・自己都合退職のリアルを書きます。\n\n#FIRE #50代 #ハローワーク #失業手当",
+      linkedArticle: 24,
+    },
+    {
+      id: 60,
+      date: "2026-06-04",
+      status: "posted",
+      text: "本日note更新📝\n\nハローワークに行ってきた。\n\n証明写真は不要だった。\n印鑑も使わなかった。\nでも50分待った。\n\n50歳・自己都合退職のリアル。\n\n▼ note記事はこちら\nhttps://note.com/lucid_zinnia7777/n/n14fd5553e681\n\n#FIRE #50代 #ハローワーク #失業手当",
+      linkedArticle: 24,
+    },
+    {
+      id: 61,
+      date: "2026-06-05",
+      status: "posted",
+      text: "退職して3ヶ月。\n\n口座の残高が毎月減るのを見て、ふと不安になる。\n\n「この資産、何歳まで持つんだろう」\n\n気になりすぎて、自分で計算ツールを作ってしまった。\n\n近いうちにnoteで公開します🔥\n\n#サイドFIRE #FIRE #50代 #早期退職",
+      linkedArticle: 26,
+    },
+    {
+      id: 62,
+      date: "2026-06-06",
+      status: "posted",
+      text: "複利の話。\n\n今の100万円を年4.5%で45年運用すると、約700万円。\n\n頭では分かってるけど、グラフにすると改めて驚く。\n\n「複利は金額より、時間が効く」\n\n若い人ほど有利な理由はこれ。\n\n#新NISA #FIRE #50代 #資産運用",
+      linkedArticle: null,
+    },
+    {
+      id: 63,
+      date: "2026-06-07",
+      status: "posted",
+      text: "明日のnoteは、自作のFIREシミュレーターの話。\n\n「定年まで働く」と「サイドFIRE」で資産がどう変わるか、グラフで比べられる無料ツールを作りました。\n\n退職後の「あと何年もつ？」も見られます。\n\n明日17時ごろ公開📊\n\n#サイドFIRE #FIRE #50代 #早期退職",
+      linkedArticle: 26,
+    },
+    {
+      id: 64,
+      date: "2026-06-08",
+      status: "posted",
+      text: "noteを更新しました。\n\n老後の資産、何歳まで持つ？\n不安だったので、FIREシミュレーターを自作🔥\n\n無料・登録不要・スマホOK。\n\n▼ note記事はこちら\nhttps://note.com/lucid_zinnia7777/n/ncfaf6da07cd4\n\n#サイドFIRE #FIRE #50代 #資産運用",
+      linkedArticle: 26,
+    },
+    {
+      id: 65,
+      date: "2026-06-10",
+      status: "posted",
+      text: "明日のnoteは、お金の「順番」の話。\n\n新NISAの枠は、まだ埋めたい。\nでも埋めたら、現金は3年で尽きる。\n\n退職金を寝かせる理想と、\n取り崩す現実のジレンマ。\n\n明日17時ごろ公開します📊\n\n#サイドFIRE #FIRE #50代 #新NISA",
+      linkedArticle: 27,
+    },
+    {
+      id: 66,
+      date: "2026-06-12",
+      status: "posted",
+      text: "今日からサッカーW杯⚽\n\n開催は北中米。米・カナダ・メキシコ。\n時差で、試合は早朝や午前が多い。\n\n会社員のころは、諦めるしかなかった。\n\nサイドFIREの今年は、\nコーヒー片手にリアタイで観られる。\n\nこれも、ひとつの配当だ。\n\n#サイドFIRE #FIRE #50代 #W杯",
+      linkedArticle: null,
+    },
+    {
+      id: 67,
+      date: "2026-06-11",
+      status: "posted",
+      text: "noteを更新しました。\n\n「全部投資」か「現金を残す」か。\n\n枠を埋めたら現金が尽きる——と思ったら、順番の問題だった。\n\n正論と、心の安定のあいだで揺れる話。\n\n▼ note記事はこちら\nhttps://note.com/lucid_zinnia7777/n/n55226f64ce93\n\n#サイドFIRE #FIRE #50代 #新NISA",
+      linkedArticle: 27,
+    },
+    {
+      id: 68,
+      date: "2026-06-14",
+      status: "posted",
+      text: "明日のnoteは、住民税の話。\n\n退職して初めて届いた住民税。\n思ったより安くて、ほっとした。\n\nでも明細を見たら、ふるさと納税が上限オーバー。\n\nその意外な原因とは。\n\n明日公開します📩\n\n#サイドFIRE #FIRE #50代 #ふるさと納税",
+      linkedArticle: 28,
+    },
+    {
+      id: 69,
+      date: "2026-06-15",
+      status: "scheduled",
+      text: "本日note更新📝\n\n退職後初の住民税。検算したら、ふるさと納税が限度額オーバー。\n\n原因は、息子の年金を私が払ったこと。節税のつもりが、別の枠を削っていた。\n\n▼ note記事はこちら\n（公開後にURL）\n\n#サイドFIRE #FIRE #50代 #ふるさと納税",
+      linkedArticle: 28,
+    },
+    {
+      id: 70,
+      date: "2026-06-16",
+      status: "scheduled",
+      text: "今日はハローワークの雇用保険説明会。\n\n退職して3ヶ月半、いよいよ失業手当の手続きが本格化。\n\n会場に着いた。同年代らしき人もちらほら。\n\nどんな話があるのか、メモしてきます📝\n\n#サイドFIRE #FIRE #50代 #ハローワーク",
+      linkedArticle: 29,
+    },
+    {
+      id: 71,
+      date: "2026-06-17",
+      status: "scheduled",
+      text: "明日のnoteは、ハローワークの雇用保険説明会の話。\n\n「失業認定」って、実際どう進むんだろう。\n行く前は分からないことだらけでした。\n\n持ち物や当日の流れも含めて、正直にまとめます。\n\n明日公開します📝\n\n#サイドFIRE #FIRE #50代 #失業手当",
+      linkedArticle: 29,
+    },
+    {
+      id: 72,
+      date: "2026-06-18",
+      status: "scheduled",
+      text: "noteを更新しました。\n\nハローワークの雇用保険説明会に行ってきた話。\n\n失業認定の流れ、求職活動の数え方、次回認定日まで。\n\n▼ note記事はこちら\n（公開後にURL）\n\n#サイドFIRE #FIRE #50代 #ハローワーク",
+      linkedArticle: 29,
+    },
+  ],
+};
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  以下はレンダリングロジック — 基本的に編集不要              ║
+// ╚══════════════════════════════════════════════════════════════╝
+
+const D = DASHBOARD_DATA;
+
+// ---- ユーティリティ ----
+function fmt(dateStr) {
+  if (!dateStr) return "未定";
+  const d = new Date(dateStr + "T00:00:00");
+  return `${d.getMonth()+1}/${d.getDate()}`;
+}
+function statusBadge(s) {
+  const m = { published: "公開済み", draft: "下書き", planned: "予定", idea: "アイデア", posted: "投稿済み", scheduled: "予約済み" };
+  return `<span class="badge badge-${s}">${m[s]||s}</span>`;
+}
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+// エスケープ済みのHTMLの中からURLを検出してアンカーに変換
+function linkify(html) {
+  return html.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:#4a90d9;text-decoration:underline;word-break:break-all;">$1</a>');
+}
+
+// ---- X投稿ステータスの永続化（localStorage） ----
+// ユーザーがワンクリックで「投稿済み」に切り替えた結果をブラウザに保存。
+// 次回リロードしても状態が保持される。Claudeを呼ばずに自分で更新できる仕組み。
+const X_POSTS_OVERRIDES_KEY = 'haruDashboard_xPostsOverrides_v1';
+function loadXPostsOverrides() {
+  try { return JSON.parse(localStorage.getItem(X_POSTS_OVERRIDES_KEY) || '{}'); }
+  catch(e) { return {}; }
+}
+function saveXPostsOverrides(obj) {
+  try { localStorage.setItem(X_POSTS_OVERRIDES_KEY, JSON.stringify(obj)); } catch(e) {}
+}
+function applyXPostsOverrides() {
+  const overrides = loadXPostsOverrides();
+  D.xPosts.forEach(p => {
+    if (overrides[p.id] !== undefined) p.status = overrides[p.id];
+  });
+}
+
+// 「投稿済みにする」を押した実時刻を記録（ソート用）
+const X_POSTED_AT_KEY = 'haruDashboard_xPostedAt_v1';
+function savePostedAt(id) {
+  try {
+    const all = JSON.parse(localStorage.getItem(X_POSTED_AT_KEY) || '{}');
+    all[id] = new Date().toISOString();
+    localStorage.setItem(X_POSTED_AT_KEY, JSON.stringify(all));
+  } catch(e) {}
+}
+function applyPostedAt() {
+  try {
+    const pts = JSON.parse(localStorage.getItem(X_POSTED_AT_KEY) || '{}');
+    D.xPosts.forEach(p => { if (pts[p.id]) p.postedAt = pts[p.id]; });
+  } catch(e) {}
+}
+function toggleXPostStatus(id) {
+  const post = D.xPosts.find(p => p.id === id);
+  if (!post) return;
+  const newStatus = post.status === 'posted' ? 'scheduled' : 'posted';
+  post.status = newStatus;
+  const overrides = loadXPostsOverrides();
+  overrides[id] = newStatus;
+  saveXPostsOverrides(overrides);
+
+  // 投稿済みにした実時刻を記録（並び順に使用）
+  if (newStatus === 'posted') savePostedAt(id);
+
+  // 投稿済みにした瞬間にクリップボードへコピー
+  if (newStatus === 'posted') {
+    const today = new Date().toLocaleDateString('sv-SE'); // YYYY-MM-DD
+    const label = getPostLabel(post);
+    const logEntry = `${today} ${label}`;
+    copyTextCompat(logEntry)
+      .then(() => showToast('📋 コピーしました！メモアプリを開いてペーストしてください\n' + logEntry))
+      .catch(() => showToast('⚠️ コピーできません。長押しで選択：\n' + logEntry));
+  }
+
+  renderXPosts();
+  renderCalendar();
+}
+
+// http環境でも動くコピー（navigator.clipboardはhttps/localhost限定のため）
+function copyTextCompat(text) {
+  return new Promise((resolve, reject) => {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(resolve).catch(() => fallbackCopy(text, resolve, reject));
+    } else {
+      fallbackCopy(text, resolve, reject);
+    }
+  });
+}
+function fallbackCopy(text, resolve, reject) {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.contentEditable = true;
+    ta.style.position = 'fixed';
+    ta.style.top = '0';
+    ta.style.left = '0';
+    ta.style.width = '1px';
+    ta.style.height = '1px';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    if (ta.setSelectionRange) ta.setSelectionRange(0, text.length);
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    ok ? resolve() : reject(new Error('copy failed'));
+  } catch (e) { reject(e); }
+}
+
+function showToast(msg) {
+  let el = document.getElementById('x-toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'x-toast';
+    el.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:14px 20px;border-radius:12px;font-size:14px;z-index:9999;max-width:88vw;text-align:center;white-space:pre-line;box-shadow:0 4px 20px rgba(0,0,0,.4);border:1px solid #444;transition:opacity .4s;line-height:1.6;';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.opacity = '1';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.opacity = '0'; }, 4000);
+}
+
+// ---- note記事パネル ----
+function renderArticles() {
+  const el = document.getElementById('panel-note');
+  const drafts = D.articles.filter(a => a.status === 'draft' || a.status === 'planned');
+  const ideas = D.ideas || [];
+  const published = D.articles.filter(a => a.status === 'published');
+
+  let html = `<div class="section-title">📝 下書き・公開予定（${drafts.length}件）</div>`;
+  drafts.sort((a,b) => (a.date||'9').localeCompare(b.date||'9')).forEach(a => {
+    html += articleCard(a);
+  });
+
+  html += `<div class="section-title" style="margin-top:24px">💡 アイデア（${ideas.length}件）</div>`;
+  ideas.forEach(a => {
+    html += ideaCard(a);
+  });
+
+  html += `<div class="section-title" style="margin-top:24px">📰 公開済み（${published.length}件）</div>`;
+  published.sort((a,b) => b.date.localeCompare(a.date)).forEach(a => {
+    html += articleCard(a);
+  });
+  el.innerHTML = html;
+}
+
+function ideaCard(a) {
+  return `
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">💡 ${escHtml(a.title)}</span>
+        ${statusBadge('idea')}
+      </div>
+      <div style="font-size:14px;color:var(--text-sub);margin-top:6px;">${escHtml(a.summary)}</div>
+      <div class="tags">${(a.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+    </div>`;
+}
+
+function articleCard(a) {
+  return `
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">記事${a.id <= 10 ? '⓪①②③④⑤⑥⑦⑧⑨⑩'[a.id] : a.id} ${a.title}</span>
+        ${statusBadge(a.status)}
+      </div>
+      <div style="font-size:14px;color:var(--text-sub);">
+        ${a.date ? '📅 ' + fmt(a.date) + (a.status==='published'?' 公開':' 公開予定') : '📅 未定'}
+      </div>
+      <div style="font-size:14px;color:var(--text-sub);margin-top:6px;">${a.summary}</div>
+      <div class="tags">${a.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      ${a.noteUrl ? `<div style="margin-top:12px;"><a href="${a.noteUrl}" target="_blank" rel="noopener" class="article-link-btn">🔗 noteで記事を開く</a></div>` : ''}
+      ${a.kindleUrl ? `<div style="margin-top:8px;"><a href="${a.kindleUrl}" target="_blank" rel="noopener" class="article-link-btn" style="background:#ff9900;border-color:#ff9900;">📕 Amazonで見る</a></div>` : (a.kindleUrl === '' && a.id === 12 ? '<div style="margin-top:8px;font-size:13px;color:var(--yellow);">⏳ Amazon承認待ち（72時間以内）— 承認後にURLを追記してください</div>' : '')}
+    </div>`;
+}
+
+// ---- X投稿ログ用ヘルパー ----
+function getPostLabel(p) {
+  const linked = p.linkedArticle ? D.articles.find(a => a.id === p.linkedArticle) : null;
+  if (linked) {
+    const t = linked.title;
+    return (t.length > 18 ? t.substring(0, 18) + '…' : t) + ' 告知';
+  }
+  // テキスト1行目から絵文字・ハッシュタグ・URLを除去して短縮
+  const line = p.text.split('\n')
+    .map(l => l.replace(/[\u{1F4DD}\u{1F4D8}\u{1F4D5}\u{1F514}\u{1F331}\u{1F4F1}\u{1FA99}\u{1F4AE}\u{1F4AE}\u{2705}\u{1F4E5}]/gu, '')
+               .replace(/#\S+/g, '').replace(/【.*?】/g, '').replace(/https?:\/\/\S+/g, '').trim())
+    .find(l => l.length > 2) || p.text.substring(0, 15);
+  return line.length > 20 ? line.substring(0, 20) + '…' : line;
+}
+function copyXLog() {
+  const posted = D.xPosts.filter(p => p.status === 'posted');
+  const logText = posted
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .map(p => `${p.date} ${getPostLabel(p)}`)
+    .join('\n');
+  copyTextCompat(logText)
+    .then(() => {
+      const btn = document.getElementById('copy-log-btn');
+      if (btn) { btn.textContent = '✅ コピーしました！'; setTimeout(() => { btn.textContent = '📋 全件コピー'; }, 2000); }
+    })
+    .catch(() => alert('コピーできません。手動で選択してください:\n' + logText));
+}
+
+// ---- X投稿パネル ----
+function renderXPosts() {
+  const el = document.getElementById('panel-x');
+  const scheduled = D.xPosts.filter(p => p.status === 'scheduled');
+  const posted = D.xPosts.filter(p => p.status === 'posted');
+
+  // 手順ガイド（常に先頭に表示）
+  let html = `
+    <div class="workflow-guide">
+      <div class="workflow-title">📝 投稿の流れ（2ステップ・スマホ対応）</div>
+      <div class="workflow-steps">
+        <div class="wf-step"><span class="wf-num">1</span>「📱 Xに投稿（ワンタップ）」を押す → 投稿文入りのX画面が開く → 投稿ボタンを押すだけ</div>
+        <div class="wf-step"><span class="wf-num">2</span>このページに戻って「✅ 投稿済みにする」を押す</div>
+      </div>
+      <div class="workflow-note">※ Xアプリがインストールされていればアプリが起動します。PCではWeb版が開きます。状態はこのブラウザに保存され、リロードしても保持されます。</div>
+    </div>`;
+
+  html += `<div class="section-title">📋 予約・投稿予定（${scheduled.length}件）</div>`;
+  scheduled.sort((a,b) => a.date.localeCompare(b.date)).forEach(p => {
+    html += xCard(p);
+  });
+
+  html += `<div class="section-title" style="margin-top:24px">📮 投稿済み（${posted.length}件）</div>`;
+  posted.sort((a, b) => {
+    // 「投稿済みにする」を押した実時刻があればそれで比較、なければ日付で比較
+    const ta = a.postedAt || (a.date ? a.date + 'T00' : '');
+    const tb = b.postedAt || (b.date ? b.date + 'T00' : '');
+    return tb.localeCompare(ta); // 降順（新しいものが上）
+  }).forEach(p => {
+    html += xCard(p);
+  });
+
+  // X投稿ログ（コピー用）
+  const postedForLog = D.xPosts.filter(p => p.status === 'posted')
+    .sort((a, b) => a.date.localeCompare(b.date));
+  const logLines = postedForLog.map(p => `${p.date} ${getPostLabel(p)}`).join('\n');
+  html += `
+    <div style="margin-top:28px;padding:16px;background:var(--card-bg);border:1px solid var(--border);border-radius:12px;">
+      <div style="font-weight:700;font-size:14px;margin-bottom:10px;">📋 X投稿ログ（iPhoneメモ用）</div>
+      <pre style="font-size:12px;line-height:2;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;margin:0 0 12px;white-space:pre-wrap;overflow-x:auto;">${escHtml(logLines)}</pre>
+      <button id="copy-log-btn" onclick="copyXLog()" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:14px;cursor:pointer;font-weight:600;">📋 全件コピー</button>
+      <span style="font-size:12px;color:var(--text-sub);margin-left:10px;">※「投稿済みにする」を押すと自動でコピーされます</span>
+    </div>`;
+
+  // リセットボタン（一番下）
+  html += `
+    <div style="margin-top:32px;padding-top:16px;border-top:1px solid var(--border);text-align:center;">
+      <button class="reset-btn" onclick="resetXPostsOverrides()" title="ブラウザに保存した投稿済み状態を全部クリアします。元のHTMLファイルのステータスに戻ります。">⚙️ 投稿済み状態をリセット</button>
+    </div>`;
+  el.innerHTML = html;
+}
+
+// ---- Xに投稿（Web Intent方式：ワンタップ投稿対応） ----
+// スマホでも動作。URLに投稿文を埋め込んでX(アプリorWeb)の投稿画面を直接開く。
+// 画像PCでもスマホでも同じ動き。クリップボードAPI不要なのでfile://でも動く。
+function postToX(text) {
+  // Web IntentのURL形式。Xアプリが入っていれば自動でアプリが起動する。
+  const url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text);
+  // バックアップでクリップボードにもコピー（失敗しても無視）
+  copyTextCompat(text).catch(() => {});
+  window.open(url, '_blank');
+}
+
+// ---- 状態リセット ----
+function resetXPostsOverrides() {
+  if (!confirm('ブラウザに保存した「投稿済み」状態を全部クリアします。よろしいですか？\n\n（HTMLファイル本来のステータスに戻ります。Claudeが更新した最新の状態を反映したいときに使ってください）')) return;
+  localStorage.removeItem(X_POSTS_OVERRIDES_KEY);
+  location.reload();
+}
+
+function xCard(p) {
+  const linked = p.linkedArticle ? D.articles.find(a => a.id === p.linkedArticle) : null;
+  return `
+    <div class="card">
+      <div class="card-header">
+        <span style="font-size:14px;color:var(--text-sub);">📅 ${fmt(p.date)}</span>
+        ${statusBadge(p.status)}
+      </div>
+      <div style="font-size:15px;white-space:pre-wrap;margin:10px 0;line-height:1.8;">${linkify(escHtml(p.text))}</div>
+      ${linked ? `<div style="font-size:13px;color:var(--blue);margin-bottom:8px;">🔗 記事${linked.id}「${linked.title}」に連動</div>` : ''}
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        ${p.status === 'posted'
+          ? `<button class="toggle-btn posted" onclick="toggleXPostStatus(${p.id})" title="クリックで予約済みに戻します">✅ 投稿済み</button>`
+          : `<button class="copy-go-btn" onclick="postToX(decodeURIComponent('${encodeURIComponent(p.text)}'))" title="投稿文が入った状態でX(アプリ/Web)を開きます。スマホでもワンタップ投稿できます。">📱 Xに投稿（ワンタップ）</button>
+             <button class="toggle-btn" onclick="toggleXPostStatus(${p.id})" title="X投稿が完了したらクリック">✅ 投稿済みにする</button>`
+        }
+        ${linked && linked.noteUrl ? `<a href="${linked.noteUrl}" target="_blank" rel="noopener" class="article-link-btn" style="margin-top:8px;">🔗 noteで記事を開く</a>` : ''}
+      </div>
+    </div>`;
+}
+
+// ---- カレンダーパネル ----
+let calYear, calMonth;
+function initCal() {
+  const today = new Date();
+  calYear = today.getFullYear();
+  calMonth = today.getMonth();
+  renderCalendar();
+}
+function changeMonth(delta) {
+  calMonth += delta;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCalendar();
+}
+function renderCalendar() {
+  const el = document.getElementById('panel-cal');
+  const today = new Date();
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const mm = String(calMonth+1).padStart(2,'0');
+  const ym = `${calYear}-${mm}`;
+
+  // イベント取得
+  const events = {};
+  D.articles.forEach(a => {
+    if (a.date && a.date.startsWith(ym)) {
+      const day = parseInt(a.date.split('-')[2]);
+      if (!events[day]) events[day] = [];
+      events[day].push({ type: 'note', label: `📝${a.title.substring(0,8)}`, title: a.title });
+    }
+  });
+  D.xPosts.forEach(p => {
+    if (p.date && p.date.startsWith(ym)) {
+      const day = parseInt(p.date.split('-')[2]);
+      if (!events[day]) events[day] = [];
+      events[day].push({ type: 'x', label: '𝕏', title: p.text.split('\n')[0].substring(0,20), posted: p.status === 'posted' });
+    }
+  });
+
+  let html = `
+    <div class="cal-nav">
+      <button onclick="changeMonth(-1)">◀ 前月</button>
+      <span class="cal-month-label">${calYear}年 ${calMonth+1}月</span>
+      <button onclick="changeMonth(1)">翌月 ▶</button>
+    </div>
+    <div class="cal-grid">
+      <div class="cal-header">日</div><div class="cal-header">月</div><div class="cal-header">火</div>
+      <div class="cal-header">水</div><div class="cal-header">木</div><div class="cal-header">金</div><div class="cal-header">土</div>`;
+
+  // 空セル
+  for (let i = 0; i < firstDay; i++) html += `<div class="cal-empty"></div>`;
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const isToday = d === today.getDate() && calMonth === today.getMonth() && calYear === today.getFullYear();
+    html += `<div class="cal-day${isToday ? ' today' : ''}">`;
+    html += `<div class="day-num">${d}</div>`;
+    if (events[d]) {
+      events[d].forEach(ev => {
+        const evClass = ev.type === 'note' ? 'note-ev' : ('x-ev' + (ev.posted ? ' posted' : ''));
+        html += `<div class="event ${evClass}" title="${ev.title}${ev.posted ? ' (投稿済み)' : ''}">${ev.label}</div>`;
+      });
+    }
+    html += `</div>`;
+  }
+  html += `</div>`;
+  el.innerHTML = html;
+}
+
+// ---- プロフィールパネル ----
+function renderProfile() {
+  const el = document.getElementById('panel-profile');
+  const p = D.profile;
+  el.innerHTML = `
+    <div class="profile-grid">
+      <div class="card">
+        <div class="section-title">👤 基本情報</div>
+        <div style="font-size:13px;line-height:2;">
+          <strong>${p.name}</strong>（${p.age}歳・${p.location}）<br>
+          X: ${p.handle}<br>
+          note: ${p.noteId}<br>
+          ${p.status}
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title">🔗 リンク</div>
+        <div style="font-size:13px;line-height:2;">
+          note: note.com/${'lucid_zinnia7777'}<br>
+          X（旧Twitter）: @haru_sideFIRE
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px;">
+      <div class="section-title">📊 コンテンツ概況</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;text-align:center;">
+        <div><div class="stat-value">${D.articles.filter(a=>a.status==='published').length}</div><div class="stat-label">公開記事</div></div>
+        <div><div class="stat-value">${D.articles.filter(a=>a.status==='draft' || a.status==='planned').length}</div><div class="stat-label">下書き</div></div>
+        <div><div class="stat-value">${(D.ideas||[]).length + (D.kindleIdeas||[]).length}</div><div class="stat-label">アイデア</div></div>
+        <div><div class="stat-value">${D.xPosts.filter(p=>p.status==='posted').length}</div><div class="stat-label">X投稿済み</div></div>
+        <div><div class="stat-value">${D.xPosts.filter(p=>p.status==='scheduled').length}</div><div class="stat-label">X予約</div></div>
+        <div><div class="stat-value">${(D.kindleBooks||[]).filter(b=>b.status==='published').length}</div><div class="stat-label">Kindle出版済み</div></div>
+        <div><div class="stat-value">${(D.kindleBooks||[]).filter(b=>b.status==='draft').length}</div><div class="stat-label">Kindle執筆中</div></div>
+      </div>
+    </div>`;
+}
+
+// ---- Kindle本パネル ----
+function renderKindle() {
+  const el = document.getElementById('panel-kindle');
+  if (!el) return;
+  const books = D.kindleBooks || [];
+  const ideas = D.kindleIdeas || [];
+  if (books.length === 0 && ideas.length === 0) {
+    el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);">Kindle本はまだ登録されていません</div>';
+    return;
+  }
+  let html = `<div class="section-title">📚 Kindle本（${books.length}冊）</div>`;
+  html += books.map(b => {
+    const tagsHtml = (b.tags || []).map(t => `<span class="tag">${t}</span>`).join('');
+    return `
+      <div class="article-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px;">
+              ${statusBadge(b.status)}
+              <span style="font-size:13px;color:var(--muted);">${b.publishDate}</span>
+              ${b.asin ? `<span style="font-size:12px;color:var(--muted);font-family:monospace;">ASIN:${b.asin}</span>` : ''}
+              <span style="font-size:13px;color:var(--accent);font-weight:bold;">${b.price}</span>
+            </div>
+            <div style="font-weight:bold;font-size:15px;margin-bottom:6px;">📕 ${escHtml(b.title)}</div>
+            <div style="font-size:13px;color:var(--text);line-height:1.7;margin-bottom:8px;">${escHtml(b.summary)}</div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">📄 ${escHtml(b.pages)}</div>
+            <div style="margin-bottom:8px;">${tagsHtml}</div>
+            ${b.affiliateUrl ? `<a href="${b.affiliateUrl}" target="_blank" rel="noopener" class="article-link-btn" style="background:#ff9900;border-color:#ff9900;color:#fff;">📕 Amazonで見る</a>` : '<span style="font-size:13px;color:var(--yellow);">⏳ 出版準備中</span>'}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  if (ideas.length > 0) {
+    html += `<div class="section-title" style="margin-top:24px">💡 Kindleアイデア（${ideas.length}件）</div>`;
+    html += ideas.map(b => `
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">💡 ${escHtml(b.title)}</span>
+          ${statusBadge('idea')}
+        </div>
+        <div style="font-size:14px;color:var(--text-sub);margin-top:6px;">${escHtml(b.summary)}</div>
+        <div class="tags">${(b.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      </div>`).join('');
+  }
+  el.innerHTML = html;
+}
+
+// ---- タブ切替 ----
+function switchTab(tabName) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tabName));
+}
+
+// ---- 初期化 ----
+document.addEventListener('DOMContentLoaded', () => {
+  applyXPostsOverrides();
+  applyPostedAt();
+  renderArticles();
+  renderXPosts();
+  renderKindle();
+  initCal();
+  renderProfile();
+  // ヘッダー
+  document.getElementById('header-info').innerHTML = `
+    <h1>CONTENT DASHBOARD</h1>
+    <div class="sub">${D.profile.handle}</div>
+    <div class="update-info">最終更新: ${D.lastUpdated}</div>`;
+});
+</script>
+
+<!-- ======= HTML構造 ======= -->
+<div class="header" id="header-info"></div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="cal" onclick="switchTab('cal')">📅 カレンダー</div>
+  <div class="tab" data-tab="note" onclick="switchTab('note')">📰 note</div>
+  <div class="tab" data-tab="x" onclick="switchTab('x')">𝕏 X投稿</div>
+  <div class="tab" data-tab="kindle" onclick="switchTab('kindle')">📚 Kindle本</div>
+  <div class="tab" data-tab="profile" onclick="switchTab('profile')">👤 プロフィール</div>
+</div>
+
+<div id="panel-cal" class="panel active"></div>
+<div id="panel-note" class="panel"></div>
+<div id="panel-x" class="panel"></div>
+<div id="panel-kindle" class="panel"></div>
+<div id="panel-profile" class="panel"></div>
+
+</body>
+</html>
