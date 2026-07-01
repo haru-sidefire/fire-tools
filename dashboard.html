@@ -312,7 +312,7 @@ body {
 const DASHBOARD_DATA = {
 
   // --- 最終更新日 ---
-  lastUpdated: "2026-07-01（【7/1】記事33を公開済(published)化／X84告知にnote実URL(ndd335bef4275)反映／X80-84[6/27〜7/1告知]をposted化／暮らし系X87-89[7/2麻婆ラーメン・7/3名古屋駅/献血・7/4ちょこザップ/サウナ我慢]をscheduled追加／「投稿済みにする」コピーの日付バグ修正(押した実時刻→post.dateを使用)。以下6/29分：記事33を確定タイトル『本業退職後4ヶ月目の資産を公開します【給与ゼロ、最初の月】』＋note投入完了でdraft化・要約は数字伏字／記事34『初めての失業認定（6/25）』を7/6 planned追加／『失業手当・初回振込 本編』は記事番号を付けずideaへ［7/30ごろ・公開順確定後に番号付与］／ideaに『こどもNISA2027』追加・『失業認定と求職活動実績』『3ヶ月目家計簿』ideaは整理・『サンクコスト』はNヶ月表記に汎用化／X85-86[7/5記事34予告・7/6記事34告知]をscheduled追加／記事32『Kindle本告知』を公開済(published)に更新[6/29]／ideaに『国民年金・初めての納付書(前納割引)』『iDeCo移換(楽天証券で口座開設・記事23続編)』を追加）",
+  lastUpdated: "2026-07-02（【7/2】📈KPIパネル新設＝収益・読者の月次スナップショット管理開始。初回棚卸し実測: noteフォロワー126・月間PV1,440・全期間PV4,468・Kindle注文0/KU既読16頁・確定収益¥3,779。Xフォロワーと有料note部数ははるパパ確認待ち。【7/1】記事33を公開済(published)化／X84告知にnote実URL(ndd335bef4275)反映／X80-84[6/27〜7/1告知]をposted化／暮らし系X87-89[7/2麻婆ラーメン・7/3名古屋駅/献血・7/4ちょこザップ/サウナ我慢]をscheduled追加／「投稿済みにする」コピーの日付バグ修正(押した実時刻→post.dateを使用)。以下6/29分：記事33を確定タイトル『本業退職後4ヶ月目の資産を公開します【給与ゼロ、最初の月】』＋note投入完了でdraft化・要約は数字伏字／記事34『初めての失業認定（6/25）』を7/6 planned追加／『失業手当・初回振込 本編』は記事番号を付けずideaへ［7/30ごろ・公開順確定後に番号付与］／ideaに『こどもNISA2027』追加・『失業認定と求職活動実績』『3ヶ月目家計簿』ideaは整理・『サンクコスト』はNヶ月表記に汎用化／X85-86[7/5記事34予告・7/6記事34告知]をscheduled追加／記事32『Kindle本告知』を公開済(published)に更新[6/29]／ideaに『国民年金・初めての納付書(前納割引)』『iDeCo移換(楽天証券で口座開設・記事23続編)』を追加）",
 
   // --- プロフィール ---
   profile: {
@@ -678,6 +678,31 @@ const DASHBOARD_DATA = {
       summary: "インフレ無視の危険。実質利回りの考え方。同じ条件でもインフレ2%考慮で95歳資産が激減。『資産は持つはず』の楽観への警鐘。シミュレータ画面付き。",
     },
   ],
+
+  // --- KPI（収益・読者の月次スナップショット。クロコが月初に実測して1行追加していく） ---
+  // 計測方法: noteフォロワー=プロフィールページ / PV・スキ=noteダッシュボード(アクセス状況) /
+  //           Kindle=KDPレポートAPI(注文・既読KENP) / アフィリ=アソシエイト・A8の管理画面
+  kpi: {
+    goal: "2027年夏までに月1〜3万円の副業収益。先行指標はフォロワーとPV（収益は遅行指標）",
+    checkpoint: "次回チェックポイント: 2026年10月（Amazonアソシエイト3件達成期限と同時期）。X絡み運用とKindleシリーズ強化の効果をフォロワー推移で判定",
+    snapshots: [
+      {
+        label: "2026-07 ベースライン",
+        date: "2026-07-02",
+        xFollowers: null,
+        noteFollowers: 126,
+        notePVmonth: 1440,
+        notePVtotal: 4468,
+        noteLikesMonth: 185,
+        noteLikesTotal: 532,
+        kindleOrders: 0,
+        kindleKENP: 16,
+        paidNoteSales: null,
+        revenueYen: { kindle: 8, amazonAffi: 21, a8: 3750, paidNote: null },
+        memo: "初回棚卸し。Kindle注文は3冊とも0（3/1〜7/2全期間）＝販売はKU読み16頁のみ（第3巻）。アフィリ確定の実体はセルフバック。X フォロワー・有料note部数は、はるパパ確認待ち",
+      },
+    ],
+  },
 
   // --- Kindle本一覧（noteとは別管理） ---
   kindleBooks: [
@@ -1815,6 +1840,53 @@ function renderKindle() {
   el.innerHTML = html;
 }
 
+// ---- KPIパネル ----
+function renderKpi() {
+  const el = document.getElementById('panel-kpi');
+  if (!el || !D.kpi) return;
+  const snaps = D.kpi.snapshots || [];
+  const latest = snaps[snaps.length - 1] || {};
+  const rev = latest.revenueYen || {};
+  const revTotal = ['kindle','amazonAffi','a8','paidNote'].reduce((s,k)=>s+(rev[k]||0),0);
+  const fmtN = v => (v===null||v===undefined) ? '<span style="color:var(--yellow)">要確認</span>' : Number(v).toLocaleString();
+
+  let html = `
+    <div class="card" style="margin-bottom:14px;">
+      <div class="section-title">🎯 ゴール</div>
+      <div style="font-size:13px;line-height:1.9;">${escHtml(D.kpi.goal)}</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px;">⏱ ${escHtml(D.kpi.checkpoint)}</div>
+    </div>
+    <div class="card" style="margin-bottom:14px;">
+      <div class="section-title">📈 最新スナップショット（${escHtml(latest.label||'')} / ${latest.date||''}）</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;text-align:center;margin-bottom:10px;">
+        <div><div class="stat-value">${fmtN(latest.xFollowers)}</div><div class="stat-label">Xフォロワー</div></div>
+        <div><div class="stat-value">${fmtN(latest.noteFollowers)}</div><div class="stat-label">noteフォロワー</div></div>
+        <div><div class="stat-value">${fmtN(latest.notePVmonth)}</div><div class="stat-label">note月間ビュー</div></div>
+        <div><div class="stat-value">${fmtN(latest.noteLikesMonth)}</div><div class="stat-label">note月間スキ</div></div>
+        <div><div class="stat-value">${fmtN(latest.kindleOrders)}</div><div class="stat-label">Kindle注文(累計)</div></div>
+        <div><div class="stat-value">${fmtN(latest.kindleKENP)}</div><div class="stat-label">KU既読ページ(累計)</div></div>
+        <div><div class="stat-value">${fmtN(latest.paidNoteSales)}</div><div class="stat-label">有料note部数</div></div>
+        <div><div class="stat-value">¥${revTotal.toLocaleString()}</div><div class="stat-label">確定収益(累計)</div></div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);">内訳: Kindle ¥${fmtN(rev.kindle)} ／ Amazonアフィリ ¥${fmtN(rev.amazonAffi)} ／ A8 ¥${fmtN(rev.a8)}（セルフバック） ／ 有料note ¥${fmtN(rev.paidNote)}</div>
+      ${latest.memo ? `<div style="font-size:12px;color:var(--text-sub);margin-top:8px;line-height:1.7;">📝 ${escHtml(latest.memo)}</div>` : ''}
+    </div>`;
+
+  if (snaps.length >= 1) {
+    html += `<div class="card"><div class="section-title">🗓 月次推移</div>
+      <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap;">
+      <tr style="color:var(--muted);text-align:right;"><th style="text-align:left;padding:6px;">月</th><th style="padding:6px;">X</th><th style="padding:6px;">note</th><th style="padding:6px;">月PV</th><th style="padding:6px;">月スキ</th><th style="padding:6px;">Kindle注文</th><th style="padding:6px;">KENP</th><th style="padding:6px;">有料note</th><th style="padding:6px;">収益計</th></tr>` +
+      snaps.map(s=>{
+        const r=s.revenueYen||{}; const t=['kindle','amazonAffi','a8','paidNote'].reduce((a,k)=>a+(r[k]||0),0);
+        const f=v=>(v===null||v===undefined)?'—':Number(v).toLocaleString();
+        return `<tr style="text-align:right;border-top:1px solid rgba(255,255,255,.06);"><td style="text-align:left;padding:6px;">${escHtml(s.label)}</td><td style="padding:6px;">${f(s.xFollowers)}</td><td style="padding:6px;">${f(s.noteFollowers)}</td><td style="padding:6px;">${f(s.notePVmonth)}</td><td style="padding:6px;">${f(s.noteLikesMonth)}</td><td style="padding:6px;">${f(s.kindleOrders)}</td><td style="padding:6px;">${f(s.kindleKENP)}</td><td style="padding:6px;">${f(s.paidNoteSales)}</td><td style="padding:6px;">¥${t.toLocaleString()}</td></tr>`;
+      }).join('') + `</table></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px;">※月初にクロコが実測して1行追加（note=プロフィール&アクセス状況／Kindle=KDPレポート／Kindle収益はKENP×約0.5円の概算）</div>
+    </div>`;
+  }
+  el.innerHTML = html;
+}
+
 // ---- タブ切替 ----
 function switchTab(tabName) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
@@ -1830,6 +1902,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderKindle();
   initCal();
   renderProfile();
+  renderKpi();
   // ヘッダー
   document.getElementById('header-info').innerHTML = `
     <h1>CONTENT DASHBOARD</h1>
@@ -1846,6 +1919,7 @@ document.addEventListener('DOMContentLoaded', () => {
   <div class="tab" data-tab="note" onclick="switchTab('note')">📰 note</div>
   <div class="tab" data-tab="x" onclick="switchTab('x')">𝕏 X投稿</div>
   <div class="tab" data-tab="kindle" onclick="switchTab('kindle')">📚 Kindle本</div>
+  <div class="tab" data-tab="kpi" onclick="switchTab('kpi')">📈 KPI</div>
   <div class="tab" data-tab="profile" onclick="switchTab('profile')">👤 プロフィール</div>
 </div>
 
@@ -1853,6 +1927,7 @@ document.addEventListener('DOMContentLoaded', () => {
 <div id="panel-note" class="panel"></div>
 <div id="panel-x" class="panel"></div>
 <div id="panel-kindle" class="panel"></div>
+<div id="panel-kpi" class="panel"></div>
 <div id="panel-profile" class="panel"></div>
 
 </body>
