@@ -312,7 +312,7 @@ body {
 const DASHBOARD_DATA = {
 
   // --- 最終更新日 ---
-  lastUpdated: "2026-06-29（記事33を確定タイトル『本業退職後4ヶ月目の資産を公開します【給与ゼロ、最初の月】』＋note投入完了でdraft化・要約は数字伏字／記事34『初めての失業認定（6/25）』を7/6 planned追加／『失業手当・初回振込 本編』は記事番号を付けずideaへ［7/30ごろ・公開順確定後に番号付与］／ideaに『こどもNISA2027』追加・『失業認定と求職活動実績』『3ヶ月目家計簿』ideaは整理・『サンクコスト』はNヶ月表記に汎用化／X85-86[7/5記事34予告・7/6記事34告知]をscheduled追加／記事32『Kindle本告知』を公開済(published)に更新[6/29]／ideaに『国民年金・初めての納付書(前納割引)』『iDeCo移換(楽天証券で口座開設・記事23続編)』を追加。※X投稿のposted同期はx投稿ログ未確認のため保留）",
+  lastUpdated: "2026-07-01（【7/1】記事33を公開済(published)化／X84告知にnote実URL(ndd335bef4275)反映／X80-84[6/27〜7/1告知]をposted化／暮らし系X87-89[7/2麻婆ラーメン・7/3名古屋駅/献血・7/4ちょこザップ/サウナ我慢]をscheduled追加／「投稿済みにする」コピーの日付バグ修正(押した実時刻→post.dateを使用)。以下6/29分：記事33を確定タイトル『本業退職後4ヶ月目の資産を公開します【給与ゼロ、最初の月】』＋note投入完了でdraft化・要約は数字伏字／記事34『初めての失業認定（6/25）』を7/6 planned追加／『失業手当・初回振込 本編』は記事番号を付けずideaへ［7/30ごろ・公開順確定後に番号付与］／ideaに『こどもNISA2027』追加・『失業認定と求職活動実績』『3ヶ月目家計簿』ideaは整理・『サンクコスト』はNヶ月表記に汎用化／X85-86[7/5記事34予告・7/6記事34告知]をscheduled追加／記事32『Kindle本告知』を公開済(published)に更新[6/29]／ideaに『国民年金・初めての納付書(前納割引)』『iDeCo移換(楽天証券で口座開設・記事23続編)』を追加）",
 
   // --- プロフィール ---
   profile: {
@@ -620,7 +620,7 @@ const DASHBOARD_DATA = {
       id: 33,
       title: "本業退職後4ヶ月目の資産を公開します【給与ゼロ、最初の月】",
       date: "2026-07-01",
-      status: "draft",
+      status: "published",
       tags: ["#サイドFIRE", "#FIRE", "#50代", "#資産運用", "#資産公開", "#配当金生活", "#家計管理", "#早期退職"],
       summary: "給与が完全にゼロになった最初の月（6月）の資産公開。総資産は公開開始以来はじめて前月割れ（株高一服＋給与ゼロ初月の現金取り崩し）。収入は妻パート・児童手当等・配当、支出は住民税・健保・コストコ等で月次ギャップは赤字。3つの配当で振り返り。有料300円・冒頭無料。note投入完了（ndd335bef4275・アイキャッチ済・在中表画像2枚・Amazon自著カード＋開示文・ハッシュタグ済）。有料ライン¥300は公開時設定。タイトルは「本業」付きで確定。（draft・7/1水イレギュラー公開予定）",
     },
@@ -1286,7 +1286,7 @@ const DASHBOARD_DATA = {
     {
       id: 80,
       date: "2026-06-27",
-      status: "scheduled",
+      status: "posted",
       text: "W杯、すっかり昼夜逆転してきた。\n\n北中米開催で、試合はたいてい早朝。\n早起きして観る…はずが、いっそ寝ずに迎え撃つ。\n\n観終わったら、昼に寝る。\n\n会社員なら、絶対できなかった。\nサイドFIREの、ちょっと困った特権です⚽\n\n#サイドFIRE #FIRE #50代 #W杯",
       linkedArticle: null,
     },
@@ -1294,14 +1294,14 @@ const DASHBOARD_DATA = {
     {
       id: 81,
       date: "2026-06-28",
-      status: "scheduled",
+      status: "posted",
       text: "明日のnoteは、お知らせです。\n\n退職してからの手続き、何度もつまずいた。\n健康保険、年金、失業手当、税金…\n\nその記録を、1冊にまとめました📘\n\n『退職後の手続き完全マニュアル』、\n明日くわしく書きます。\n\n#サイドFIRE #FIRE #50代 #退職",
       linkedArticle: 32,
     },
     {
       id: 82,
       date: "2026-06-29",
-      status: "scheduled",
+      status: "posted",
       text: "noteを更新しました📘\n\n退職後の手続きでつまずいた記録を、1冊にまとめました。\n\n『退職後の手続き完全マニュアル』\nKindle Unlimitedで読み放題です。\n\n▼ note記事はこちら\nhttps://note.com/lucid_zinnia7777/n/n2fec787657b6\n\n#サイドFIRE #FIRE #50代 #退職",
       linkedArticle: 32,
     },
@@ -1309,16 +1309,38 @@ const DASHBOARD_DATA = {
     {
       id: 83,
       date: "2026-06-30",
-      status: "scheduled",
+      status: "posted",
       text: "明日は、月に一度の資産公開です。\n\n退職して4ヶ月、完全サイドFIRE2ヶ月目。\n現金は減ったのか、増えたのか。\n\n毎月続けている、リアルな数字。\n\n明日、公開します📊\n\n#サイドFIRE #FIRE #50代 #資産公開",
       linkedArticle: 33,
     },
     {
       id: 84,
       date: "2026-07-01",
-      status: "scheduled",
-      text: "noteを公開しました📊\n\n退職後4ヶ月目の資産公開です。\n完全サイドFIRE2ヶ月目、現金と投資のリアル。\n\n▼ note記事はこちら\n（公開後のURLをここに）\n\n#サイドFIRE #FIRE #50代 #資産公開",
+      status: "posted",
+      text: "noteを公開しました📊\n\n退職後4ヶ月目の資産公開です。\n完全サイドFIRE2ヶ月目、現金と投資のリアル。\n\n▼ note記事はこちら\nhttps://note.com/lucid_zinnia7777/n/ndd335bef4275\n\n#サイドFIRE #FIRE #50代 #資産公開",
       linkedArticle: 33,
+    },
+    // --- 暮らし系つぶやき（7/2〜7/4） ---
+    {
+      id: 87,
+      date: "2026-07-02",
+      status: "scheduled",
+      text: "平日ランチ、麻婆ラーメンが当たりだった🍜\n\n11時半を少し過ぎると、混雑のピークが引いていく。\nその30分をずらせるだけで、こんなに気楽なんだ。\n\n時間に追われないって、こういうことか。\n\n#サイドFIRE #50代 #早期退職 #セミリタイア",
+      linkedArticle: null,
+    },
+    {
+      id: 88,
+      date: "2026-07-03",
+      status: "scheduled",
+      text: "今日はちょっと用事で名古屋駅へ。\n\n時間に余裕があったら、献血にも寄っていこうかな。\n\n働いていた頃は「いつか」で素通りだった。\n余白ができて、やっと動ける気がする🩸\n\n#サイドFIRE #50代 #献血 #早期退職",
+      linkedArticle: null,
+    },
+    {
+      id: 89,
+      date: "2026-07-04",
+      status: "scheduled",
+      text: "ちょこザップで、いい汗かいた💦\n\n本当はサウナに行きたいけど、土曜は混んでそう。\n今日は我慢して、来週の平日にしよう。\n\n空いてる時間を選べるのは、平日が自由な人の特権かも。\n\n#サイドFIRE #50代 #サウナ #早期退職",
+      linkedArticle: null,
     },
     // --- 記事34「初めての失業認定（6/25）」（7/6）への助走ポスト ---
     {
@@ -1409,9 +1431,11 @@ function toggleXPostStatus(id) {
 
   // 投稿済みにした瞬間にクリップボードへコピー
   if (newStatus === 'posted') {
-    const today = new Date().toLocaleDateString('sv-SE'); // YYYY-MM-DD
+    // ログの日付は「押した実時刻」ではなく、その投稿の予定日(post.date)を使う。
+    // （後日まとめて押しても日付がズレないように。post.date が無ければ今日）
+    const logDate = post.date || new Date().toLocaleDateString('sv-SE'); // YYYY-MM-DD
     const label = getPostLabel(post);
-    const logEntry = `${today} ${label}`;
+    const logEntry = `${logDate} ${label}`;
     copyTextCompat(logEntry)
       .then(() => showToast('📋 コピーしました！メモアプリを開いてペーストしてください\n' + logEntry))
       .catch(() => showToast('⚠️ コピーできません。長押しで選択：\n' + logEntry));
