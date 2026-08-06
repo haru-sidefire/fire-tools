@@ -1874,19 +1874,21 @@ function articleCard(a) {
 
 // ---- X投稿ログ用ヘルパー ----
 function getPostLabel(p) {
-  const linked = p.linkedArticle ? D.articles.find(a => a.id === p.linkedArticle) : null;
-  if (linked) {
-    const t = linked.title;
-    const nid = (linked.noteUrl || '').split('/n/')[1] || '';
-    const kind = (nid && p.text.includes(nid)) ? '告知' : '予告';
-    return (t.length > 18 ? t.substring(0, 18) + '…' : t) + ' ' + kind;
-  }
-  // テキスト1行目から絵文字・ハッシュタグ・URLを除去して短縮
+  // ラベル＝X本文の書き出し20字（絵文字・ハッシュタグ・URLは除去）。
+  // 記事にひもづく投稿は末尾に「予告 / 告知」を付ける（本文にnoteの記事IDが入っていれば告知）。
+  // ※以前は記事タイトルを使っていたが、同じ記事の予告と告知が末尾2文字しか違わず
+  //   メモ上で見分けがつかなかったため、本文の書き出しに変更（2026-08-06）。
   const line = p.text.split('\n')
-    .map(l => l.replace(/[\u{1F4DD}\u{1F4D8}\u{1F4D5}\u{1F514}\u{1F331}\u{1F4F1}\u{1FA99}\u{1F4AE}\u{1F4AE}\u{2705}\u{1F4E5}]/gu, '')
-               .replace(/#\S+/g, '').replace(/【.*?】/g, '').replace(/https?:\/\/\S+/g, '').trim())
+    .map(l => l.replace(/\p{Extended_Pictographic}/gu, '')
+               .replace(/#\S+/g, '').replace(/【.*?】/g, '').replace(/https?:\/\/\S+/g, '')
+               .replace(/^▼\s*/, '').trim())
     .find(l => l.length > 2) || p.text.substring(0, 15);
-  return line.length > 20 ? line.substring(0, 20) + '…' : line;
+  const snippet = line.length > 20 ? line.substring(0, 20) + '…' : line;
+  const linked = p.linkedArticle ? D.articles.find(a => a.id === p.linkedArticle) : null;
+  if (!linked) return snippet;
+  const nid = (linked.noteUrl || '').split('/n/')[1] || '';
+  const kind = (nid && p.text.includes(nid)) ? '告知' : '予告';
+  return snippet + ' ' + kind;
 }
 function copyXLog() {
   const posted = D.xPosts.filter(p => p.status === 'posted');
