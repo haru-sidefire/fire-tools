@@ -86,7 +86,10 @@ td{padding:5px 8px;text-align:right;border-bottom:1px solid #f1f5f9}
 td:first-child{text-align:left}
 tr.edu{background:#fffbeb}tr.pen{background:#f0fdf4}tr.fir{background:#eff6ff}tr.now td{font-weight:700;background:#f1f5f9}
 .badge{display:inline-block;font-size:.56rem;padding:1px 4px;border-radius:3px;margin-left:3px;vertical-align:middle}
-.be{background:#fef3c7;color:#92400e}.bp{background:#dcfce7;color:#166534}.bf{background:#dbeafe;color:#1e40af}
+.be{background:#fef3c7;color:#92400e}.bp{background:#dcfce7;color:#166534}.bf{background:#dbeafe;color:#1e40af}.bs{background:#fee2e2;color:#991b1b}.bl{background:#ede9fe;color:#5b21b6}
+.seg.mini button{font-size:.74rem;padding:5px 0}
+.mob{display:none}
+@media(max-width:767px){.sm.x{display:none}.mob{display:block;color:#7c3aed;font-weight:600}}
 .hint{font-size:.66rem;color:#94a3b8;margin-top:9px;line-height:1.7}
 
 .books{display:grid;grid-template-columns:1fr;gap:10px}
@@ -147,6 +150,7 @@ footer{text-align:center;font-size:.66rem;color:#94a3b8;padding:8px 16px;line-he
         <div class="leg">
           <div class="leg-i" id="legA"><div class="leg-c" style="background:#2563eb"></div>現職継続</div>
           <div class="leg-i"><div class="leg-c" style="background:#16a34a"></div><span id="legBtext">サイドFIRE</span></div>
+          <div class="leg-i hide" id="legMC"><div class="leg-c" style="background:repeating-linear-gradient(90deg,#16a34a 0 4px,transparent 4px 7px)"></div>悪い/良い10%</div>
         </div>
       </div>
       <div class="chart-h"><canvas id="ch"></canvas></div>
@@ -245,6 +249,49 @@ footer{text-align:center;font-size:.66rem;color:#94a3b8;padding:8px 16px;line-he
         </div>
 
         <div class="sec">
+          <div class="sec-t">🎲 相場の揺れ・一時金・思い出の予算</div>
+          <div class="grid2">
+            <div class="fld">
+              <div class="fl"><span class="lbl" id="lblShock">FIRE1年目の相場</span><span class="fv" id="vShock"></span></div>
+              <input type="range" id="rShock" min="-50" max="40" step="5" value="0" oninput="go()">
+              <div class="seg mini" id="shockSeg">
+                <button type="button" data-v="-30" onclick="setShock(-30)">暴落 −30%</button>
+                <button type="button" data-v="0" onclick="setShock(0)">平均どおり</button>
+                <button type="button" data-v="20" onclick="setShock(20)">好調 +20%</button>
+              </div>
+            </div>
+            <div class="fld">
+              <label class="toggle"><input type="checkbox" id="cMC" onchange="go()"> ばらつきを入れて1,000回試す</label>
+              <div id="mcWrap">
+                <div class="fl"><span class="lbl">値動きの大きさ（1年のぶれ）</span><span class="fv" id="vVol"></span></div>
+                <input type="range" id="rVol" min="5" max="25" step="1" value="15" oninput="go()">
+              </div>
+            </div>
+            <div class="fld">
+              <label class="toggle"><input type="checkbox" id="cLump" onchange="go()"> 一時金を入れる（相続・保険金など）</label>
+              <div id="lumpWrap">
+                <div class="fl"><span class="lbl">受け取る年齢</span><span class="fv" id="vLumpAge"></span></div>
+                <input type="range" id="rLumpAge" min="30" max="95" step="1" value="60" oninput="go()">
+                <div class="fl" style="margin-top:10px"><span class="lbl">金額</span><span class="fv" id="vLumpAmt"></span></div>
+                <input type="range" id="rLumpAmt" min="0" max="5000" step="100" value="1000" oninput="go()">
+              </div>
+            </div>
+            <div class="fld">
+              <div class="fl"><span class="lbl">旅行・思い出の予算（年・生活費とは別）</span><span class="fv" id="vTrip"></span></div>
+              <input type="range" id="rTrip" min="0" max="300" step="5" value="0" oninput="go()">
+              <div class="fl" style="margin-top:10px"><span class="lbl">何歳まで使う</span><span class="fv" id="vTripUntil"></span></div>
+              <input type="range" id="rTripUntil" min="30" max="95" step="1" value="75" oninput="go()">
+            </div>
+          </div>
+          <div class="hint" style="margin-top:8px">
+            ※相場の値動きは、FIREした年（「FIRE後の資産を見る」では今年）に一度だけ入れます。2年目からは平均の利回りに戻ります（下がった分を後で取り戻す上げは入れていない＝厳しめの試算）。取り崩しを始めてすぐの暴落がいちばん効きます。<br>
+            ※1,000回の試行は、毎年の利回りを平均のまわりでランダムにぶらして計算します（同じ設定なら何度でも同じ結果）。株式中心なら1年のぶれは15〜20%ほど、債券や現金を混ぜると小さくなるのが目安です。ぶれがあると、平均が同じでも「真ん中のケース」は一定利回りの線より少し下になります。<br>
+            ※一時金は受け取った年に現金へ入ります。オンにすると「一時金がなかったら」の結果も並べて出るので、一時金に頼ったプランになっていないか確かめられます。<br>
+            ※思い出の予算は、指定した年齢までの毎年、生活費に上乗せします（表の「支出」に含みます）。
+          </div>
+        </div>
+
+        <div class="sec">
           <div class="sec-t">🏛️ 年金（65歳でもらう場合の額を入れてください）</div>
           <div class="grid2">
             <div class="fld">
@@ -315,7 +362,7 @@ footer{text-align:center;font-size:.66rem;color:#94a3b8;padding:8px 16px;line-he
         <table><thead><tr id="th-r"></tr></thead><tbody id="tb-b"></tbody></table>
       </div>
       <div class="hint">
-        🟡 教育費がかかる年 &nbsp;|&nbsp; 🟢 年金スタート &nbsp;|&nbsp; 🔵 FIRE実行年<br>
+        🟡 教育費がかかる年 &nbsp;|&nbsp; 🟢 年金スタート &nbsp;|&nbsp; 🔵 FIRE実行年 &nbsp;|&nbsp; 📉📈 相場の変動 &nbsp;|&nbsp; 🎁 一時金<br>
         ※収入は手取りの概算。年金は税引前。金額はすべて「今の物価」での目安です（インフレ率を差し引いた実質利回りで計算）。実際の数字はねんきん定期便・源泉徴収票でご確認ください。
       </div>
     </div>
@@ -372,8 +419,14 @@ const DEFAULTS={
   r0:1000, rCash:0, rReserve:0, r1:360, r9:55, rAge:47, cSpouse:true, rSpAge:45,
   numKids:2, rK0:15, rK1:12, rK2:8,
   r3:500, r4:100, r2:4, rInf:1.5, r5:180, r5age:65, r6:80, r6age:65, r7:65, r8:50, rA:120,
-  rB:50, rC:80, rD:150, mode:'judge'
+  rB:50, rC:80, rD:150, mode:'judge',
+  rShock:0, cMC:false, rVol:15, cLump:false, rLumpAge:60, rLumpAmt:1000, rTrip:0, rTripUntil:75
 };
+
+// 乱数（シード固定＝同じ設定なら毎回同じ結果）
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function gauss(rng){let u=0;while(u===0)u=rng();const v=rng();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function setShock(v){$('rShock').value=v;go();}
 
 function setKids(n){
   numKids=n;
@@ -420,6 +473,9 @@ function p(){
     wpension:$('cSpouse').checked?+$('r6').value:0, wpensionAge:+$('r6age').value,
     retireA:+$('r7').value, sideA:+$('r8').value, sideB:+$('rA').value,
     jh:+$('rB').value, hs:+$('rC').value, uni:+$('rD').value,
+    shock:+$('rShock').value, mcOn:$('cMC').checked, vol:+$('rVol').value,
+    lumpOn:$('cLump').checked, lumpAge:+$('rLumpAge').value, lumpAmt:+$('rLumpAmt').value,
+    trip:+$('rTrip').value, tripUntil:+$('rTripUntil').value,
   };
 }
 
@@ -440,6 +496,12 @@ function lbl(q){
   $('spouseIncWrap').classList.toggle('hide',!show);
   $('spousePenWrap').classList.toggle('hide',!show);
   $('spousePenAgeWrap').classList.toggle('hide',!show);
+  $('vShock').textContent=q.shock===0?'平均どおり':(q.shock>0?'+':'−')+Math.abs(q.shock)+'%';
+  $('lblShock').textContent=mode==='retired'?'今年の相場':'FIRE1年目の相場';
+  document.querySelectorAll('#shockSeg button').forEach(b=>b.classList.toggle('on',+b.dataset.v===q.shock));
+  $('vVol').textContent='±'+q.vol+'%'; $('mcWrap').classList.toggle('hide',!q.mcOn);
+  $('vLumpAge').textContent=q.lumpAge+'歳'; $('vLumpAmt').textContent=man(q.lumpAmt); $('lumpWrap').classList.toggle('hide',!q.lumpOn);
+  $('vTrip').textContent=q.trip===0?'なし':man(q.trip); $('vTripUntil').textContent=q.tripUntil+'歳まで';
 }
 
 function getInc(age,scen,q){
@@ -466,15 +528,20 @@ function getEdu(age,q){
   return t;
 }
 
-function calc(scen,q){
+function calc(scen,q,rng){
   const rows=[]; let invest=q.assets; let cash=q.cash||0; const reserve=q.reserve||0;
+  const base=(q.ret-q.inf)/100;
   for(let age=q.selfAge; age<=MAXAGE; age++){
     const year=BASE+(age-q.selfAge);
     const sa=q.hasSpouse?q.spAge+(age-q.selfAge):null;
     const edu=getEdu(age,q);
+    const trip=(q.trip>0&&age<=q.tripUntil)?q.trip:0;
+    const lump=(q.lumpOn&&age===q.lumpAge)?q.lumpAmt:0;
     const income=getInc(age,scen,q);
-    const exp=q.living+edu;
+    const exp=q.living+edu+trip;
     const cf=income-exp;
+    // 一時金は受け取った年に現金へ
+    cash+=lump;
     // 取り崩しの順序：黒字は現金へ。赤字はまず現金（防衛資金を超える分）→次に投資→最後に防衛資金
     if(cf>=0){
       cash+=cf;
@@ -486,13 +553,36 @@ function calc(scen,q){
       if(need>0){ cash-=need; need=0; }
     }
     // 運用益は投資資産にのみ（実質＝利回り−インフレ）。現金は増えない。
-    const ret=invest>0?invest*((q.ret-q.inf)/100):0;
+    // FIREした年（退職モードは今年）だけ相場の変動を入れる。ばらつきありなら毎年ランダムにぶらす。
+    const isShock=(q.shock!==0&&age===q.fireAge);
+    let r=base;
+    if(isShock) r=q.shock/100;
+    else if(rng) r=Math.max(-0.9,base+(q.vol/100)*gauss(rng));
+    const ret=invest>0?invest*r:0;
     invest=Math.round(invest+ret); cash=Math.round(cash);
     const assets=invest+cash;
-    rows.push({age,year,sa,edu,income,exp,cf,assets,invest,cash,
-      isEdu:edu>0, isPen:age===q.pensionAge, isFire:scen==='B'&&age===q.fireAge&&mode==='judge'});
+    rows.push({age,year,sa,edu,trip,lump,income,exp,cf,assets,invest,cash,
+      isEdu:edu>0, isPen:age===q.pensionAge, isFire:scen==='B'&&age===q.fireAge&&mode==='judge',
+      isShock, shockUp:q.shock>0, isLump:lump>0});
   }
   return rows;
+}
+
+// ばらつきありで1,000回（サイドFIRE／あなたの資産のシナリオ）
+function monteCarlo(q){
+  if(!q.mcOn) return null;
+  const N=1000, rng=mulberry32(20260923);
+  const cols=[]; let ok=0; const busts=[];
+  for(let n=0;n<N;n++){
+    const rows=calc('B',q,rng);
+    const b=bust(rows); if(b===null) ok++; else busts.push(b);
+    rows.forEach((r,i)=>{(cols[i]=cols[i]||[]).push(r.assets);});
+  }
+  const pick=(arr,f)=>arr[Math.min(arr.length-1,Math.floor(f*arr.length))];
+  const p10=[],p50=[],p90=[];
+  cols.forEach(c=>{c.sort((a,b)=>a-b);p10.push(pick(c,.1));p50.push(pick(c,.5));p90.push(pick(c,.9));});
+  busts.sort((a,b)=>a-b);
+  return{N,ok,rate:ok/N,bustMed:busts.length?pick(busts,.5):null,p10,p50,p90};
 }
 
 function fmt(n){return Math.round(n).toLocaleString();}
@@ -510,8 +600,28 @@ function pensionAt(base,startAge,age){
 function sgn(n){const s=fmt(n);return n>=0?`<span style="color:#16a34a">+${s}</span>`:`<span style="color:#dc2626">${s}</span>`;}
 function bust(rows){const r=rows.find(x=>x.assets<0);return r?r.age:null;}
 
-function updSumm(rA,rB,q){
+function extraCards(q,ex){
+  let h='';
+  if(ex.mc){
+    const m=ex.mc, pct=Math.round(m.rate*100);
+    h+=`<div class="sm x ${pct>=90?'b':'w'}"><div class="sm-l">🎲 ばらつきを入れて${m.N.toLocaleString()}回</div>
+      <div class="sm-v" style="color:${pct>=90?'#16a34a':'#ea580c'}">${pct}%で95歳まで持続</div>
+      <div class="sm-s">${m.bustMed?'尽きたケースの真ん中：'+m.bustMed+'歳':'尽きたケースなし'}</div></div>`;
+  }
+  if(ex.noLump){
+    const b=bust(ex.noLump), e=ex.noLump[ex.noLump.length-1].assets;
+    h+=`<div class="sm x ${b?'w':'b'}"><div class="sm-l">🎁 一時金がなかったら</div>
+      <div class="sm-v" style="color:${b?'#ea580c':'#16a34a'}">${b?b+'歳で底':'✅ 95歳まで持続'}</div>
+      <div class="sm-s">95歳時 ${oku(e)}</div></div>`;
+  }
+  return h;
+}
+
+function updSumm(rA,rB,q,ex){
   const endA=rA[rA.length-1].assets, endB=rB[rB.length-1].assets;
+  const mobMC=ex.mc?`<span class="mob">🎲 1,000回中${Math.round(ex.mc.rate*100)}%で持続</span>`:'';
+  const nlb=ex.noLump?bust(ex.noLump):null;
+  const mobLump=ex.noLump?`<span class="mob">🎁 一時金なしなら${nlb?nlb+'歳で底':'95歳まで持続'}</span>`:'';
   if(mode==='retired'){
     const bustAge=bust(rB);
     const now=rB[0];
@@ -522,13 +632,13 @@ function updSumm(rA,rB,q){
         <div class="sm-s">${q.selfAge}歳・スタート時点</div></div>
       <div class="sm ${bustAge?'w':'b'}"><div class="sm-l">⏳ 資産が尽きる年齢</div>
         <div class="sm-v" style="color:${bustAge?'#ea580c':'#16a34a'}">${bustAge?bustAge+'歳で底':'✅ 95歳まで安心'}</div>
-        <div class="sm-s">${bustAge?'設定の見直しを':'このペースなら大丈夫'}</div></div>
+        <div class="sm-s">${bustAge?'設定の見直しを':'このペースなら大丈夫'}${mobMC}</div></div>
       <div class="sm p"><div class="sm-l">📊 95歳時の資産</div>
         <div class="sm-v" style="color:${endB<0?'#dc2626':'#7c3aed'}">${oku(endB)}</div>
-        <div class="sm-s">最後まで残る想定額</div></div>
+        <div class="sm-s">最後まで残る想定額${mobLump}</div></div>
       <div class="sm a"><div class="sm-l">📅 今の毎月の収支</div>
         <div class="sm-v" style="color:${nowM<0?'#dc2626':'#16a34a'}">${nowM>=0?'+':''}${nowM.toLocaleString()}万/月</div>
-        <div class="sm-s">${nowM<0?'資産を取り崩し中':'黒字で生活'}</div></div>`;
+        <div class="sm-s">${nowM<0?'資産を取り崩し中':'黒字で生活'}</div></div>`+extraCards(q,ex);
     return;
   }
   const bustB=bust(rB), fireOK=bustB===null, yrs=q.fireAge-q.selfAge;
@@ -540,13 +650,13 @@ function updSumm(rA,rB,q){
       <div class="sm-s">${q.retireA}歳まで働く想定</div></div>
     <div class="sm b${hlB}" style="${dimB}"><div class="sm-l">🔥 サイドFIRE｜95歳の資産</div>
       <div class="sm-v" style="color:${endB<0?'#dc2626':'#16a34a'}">${oku(endB)}</div>
-      <div class="sm-s">${q.fireAge}歳でFIRE想定</div></div>
+      <div class="sm-s">${q.fireAge}歳でFIRE想定${mobLump}</div></div>
     <div class="sm ${fireOK?'b':'w'}${hlB}" style="${dimB}"><div class="sm-l">🔥 FIRE後、資産は持つ？</div>
       <div class="sm-v" style="color:${fireOK?'#16a34a':'#ea580c'}">${fireOK?'✅ 95歳まで持続':'⚠️ '+bustB+'歳で底'}</div>
-      <div class="sm-s">${fireOK?'このプランなら安心':'設定の見直しを'}</div></div>
+      <div class="sm-s">${fireOK?'このプランなら安心':'設定の見直しを'}${mobMC}</div></div>
     <div class="sm p${hlB}" style="${dimB}"><div class="sm-l">⏳ FIREまで</div>
       <div class="sm-v" style="color:#7c3aed">${yrs<=0?'今すぐ可能':'あと'+yrs+'年'}</div>
-      <div class="sm-s">${BASE+(yrs>0?yrs:0)}年・${q.fireAge}歳で実行</div></div>`;
+      <div class="sm-s">${BASE+(yrs>0?yrs:0)}年・${q.fireAge}歳で実行</div></div>`+extraCards(q,ex);
 }
 
 function chartStyles(){
@@ -556,7 +666,7 @@ function chartStyles(){
     b:{label:mode==='retired'?'あなたの資産':'サイドFIRE',borderColor:dimB?'rgba(22,163,74,.28)':'#16a34a',borderWidth:dimB?1.3:2.8,borderDash:dimB?[5,4]:[],backgroundColor:dimB?'rgba(0,0,0,0)':'rgba(22,163,74,.07)',fill:!dimB,hidden:false}
   };
 }
-function updChart(rA,rB){
+function updChart(rA,rB,mc){
   const lb=rA.map(r=>r.age+'歳');
   const ret=mode==='retired';
   let datasets;
@@ -573,6 +683,12 @@ function updChart(rA,rB){
       {label:'サイドFIRE',data:rB.map(r=>r.assets),pointRadius:0,tension:.3,...st.b}
     ];
   }
+  if(mc){
+    const band={pointRadius:0,tension:.3,borderColor:'rgba(22,163,74,.55)',borderWidth:1.3,borderDash:[5,4],fill:false,backgroundColor:'rgba(0,0,0,0)'};
+    datasets.push({label:'悪いほう10%',data:mc.p10,...band,stack:'p10'});
+    datasets.push({label:'良いほう10%',data:mc.p90,...band,stack:'p90'});
+  }
+  $('legMC').classList.toggle('hide',!mc||ret);
   if(chart){chart.destroy();chart=null;}
   chart=new Chart($('ch'),{type:'line',
     data:{labels:lb,datasets},
@@ -598,6 +714,8 @@ function updTable(rA,rB,q){
     if(a.isEdu){cls='edu';bdg+='<span class="badge be">🎓</span>';}
     if(a.isPen){cls='pen';bdg+='<span class="badge bp">💰</span>';}
     if(b.isFire){cls='fir';bdg+='<span class="badge bf">🔥</span>';}
+    if(b.isShock){bdg+=`<span class="badge bs">${b.shockUp?'📈':'📉'}</span>`;}
+    if(b.isLump){bdg+='<span class="badge bl">🎁</span>';}
     if(a.age===q.selfAge) cls+=' now';
     const cA=a.assets<0?'color:#dc2626;font-weight:700':'', cB=b.assets<0?'color:#dc2626;font-weight:700':'';
     h+=`<tr class="${cls.trim()}"><td>${a.year}${bdg}</td><td>${a.age}</td>${q.hasSpouse?`<td>${a.sa}</td>`:''}
@@ -612,13 +730,13 @@ function setV(v){if(mode!=='judge')return;curV=v;['compare','A','B'].forEach(x=>
 
 function adjustRanges(){
   const sa=+$('rAge').value;
-  ['r7','r9'].forEach(id=>{const el=$(id);el.min=sa;if(+el.value<sa)el.value=sa;});
+  ['r7','r9','rLumpAge','rTripUntil'].forEach(id=>{const el=$(id);el.min=sa;if(+el.value<sa)el.value=sa;});
 }
 
 function save(){
   const o={numKids,mode};
-  ['r0','rCash','rReserve','r1','r9','rAge','rSpAge','rK0','rK1','rK2','r3','r4','r2','rInf','r5','r5age','r6','r6age','r7','r8','rA','rB','rC','rD'].forEach(k=>o[k]=$(k).value);
-  o.cSpouse=$('cSpouse').checked;
+  ['r0','rCash','rReserve','r1','r9','rAge','rSpAge','rK0','rK1','rK2','r3','r4','r2','rInf','r5','r5age','r6','r6age','r7','r8','rA','rB','rC','rD','rShock','rVol','rLumpAge','rLumpAmt','rTrip','rTripUntil'].forEach(k=>o[k]=$(k).value);
+  o.cSpouse=$('cSpouse').checked; o.cMC=$('cMC').checked; o.cLump=$('cLump').checked;
   try{localStorage.setItem(KEY,JSON.stringify(o));}catch(e){}
 }
 
@@ -639,7 +757,7 @@ function resetAll(){
   try{localStorage.removeItem(KEY);}catch(e){}
   Object.keys(DEFAULTS).forEach(k=>{
     if(k==='numKids'||k==='cSpouse'||k==='mode')return;
-    const el=$(k); if(el)el.value=DEFAULTS[k];
+    const el=$(k); if(!el)return; if(el.type==='checkbox') el.checked=DEFAULTS[k]; else el.value=DEFAULTS[k];
   });
   $('cSpouse').checked=DEFAULTS.cSpouse;
   numKids=DEFAULTS.numKids;
@@ -653,7 +771,9 @@ function go(){
   adjustRanges();
   const q=p(); lbl(q);
   const rA=calc('A',q), rB=calc('B',q);
-  updSumm(rA,rB,q); updChart(rA,rB); updTable(rA,rB,q);
+  const mc=monteCarlo(q);
+  const noLump=q.lumpOn?calc('B',Object.assign({},q,{lumpOn:false})):null;
+  updSumm(rA,rB,q,{mc,noLump}); updChart(rA,rB,mc); updTable(rA,rB,q);
   save();
 }
 
