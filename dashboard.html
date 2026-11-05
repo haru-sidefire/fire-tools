@@ -136,6 +136,11 @@ body {
 }
 .cal-day .event.note-ev { background: rgba(74,144,217,.3); color: #8bb8ea; }
 .cal-day .event.x-ev { background: rgba(233,69,96,.3); color: #f0a0b0; }
+.cal-day .event.libe-ev { background: rgba(245,166,35,.3); color: #f5c26b; }
+.cal-day .event.insta-ev { background: rgba(193,53,132,.3); color: #e9a3cf; }
+.cal-day .event.done { opacity: .4; text-decoration: line-through; }
+.todo-box { background: rgba(245,166,35,.10); border: 1px solid rgba(245,166,35,.45); border-radius: 10px; padding: 10px 14px; margin-bottom: 14px; font-size: 13px; line-height: 1.9; }
+.todo-box .late { color: #ff7b7b; font-weight: bold; }
 .cal-empty { min-height: 68px; }
 
 /* プロフィール */
@@ -312,7 +317,7 @@ body {
 const DASHBOARD_DATA = {
 
   // --- 最終更新日 ---
-  lastUpdated: "2026-11-02",
+  lastUpdated: "2026-11-05",
 
   // --- プロフィール ---
   profile: {
@@ -919,7 +924,7 @@ const DASHBOARD_DATA = {
       id: 64,
       title: "退職後8ヶ月目の資産を公開します【株は戻ったのに、数字は減った】",
       date: "2026-11-02",
-      status: "draft",
+      status: "published",
       noteUrl: "https://note.com/lucid_zinnia7777/n/n4c95232b10c0",
       tags: ["#サイドFIRE", "#FIRE", "#50代", "#資産運用", "#資産公開", "#配当金", "#家計管理", "#思い出の配当"],
       summary: "月次資産公開（有料300円）。軸＝株は戻ったのに、総資産は減った（家族の中のお金の移動＝妻のNISA成長投資枠と、9月のカード代の引き落としのずれ）。10月は近場（ひとり旅・恵那峡）で旅のお金は9月の5分の1。コストコのお菓子をやめた話・300円の資産公開記事が初めて1本売れた話も。（note投入済み n4c95232b10c0・2026-11-01／H2×6・カード6枚・太字6・目次・空Pゼロ／画像4枚D&D済み／次回予告＝11/5 運動会／残＝有料ライン＋300円・公開ボタン・公開後マガジン m3ff4f323aad2）",
@@ -1113,6 +1118,31 @@ const DASHBOARD_DATA = {
   ],
 
   // --- X投稿一覧 ---
+  // ---- リベシティ ノウハウ図書館（2026-11-05 追加）----
+  // status: published=公開済み / draft=下書き（公開ボタン待ち） / planned=予定
+  libePosts: [
+    { date: "2026-04-11", status: "published", title: "Coworkで人事総務の作業代行！従業員の手取りを増やす福利厚生プログラム作成", memo: "", url: "https://library.libecity.com/articles/01KNRDRMEET42V0Q8GK6WDANNV" },
+    { date: "2026-06-12", status: "published", title: "【退職する人へ】社会保険の手続きでつまずいた3つと対処法｜任意継続・国民年金・iDeCo", memo: "11/5 新しい作りに更新済み", url: "https://library.libecity.com/articles/01KTWA6FP98WTB46ENT68CPG8X" },
+    { date: "2026-07-10", status: "published", title: "【失業手当】いくら・いつから？初めてのハローワークでわかった注意点5つ", memo: "11/5 更新済み（上限額を2026年8月改定に）", url: "https://library.libecity.com/articles/01KTX0Q7P9QR08AZBT95XCHDW4" },
+    { date: "2026-07-19", status: "published", title: "【50代・非エンジニア】AIでKindle本を3冊出版した6ステップと失敗談5つ", memo: "11/5 更新済み", url: "https://library.libecity.com/articles/01KWG5JJDYFK316W81AVTYF3XE" },
+    { date: "2026-11-05", status: "published", title: "【退職した年は要注意】ふるさと納税の上限0円も｜住民税の通知で確認する方法", memo: "", url: "https://library.libecity.com/articles/01M3B4VKZ05Q85K35Y1TGZGDGW" },
+    { date: "2026-11-13", status: "draft", title: "【退職した人へ】国民年金で知っておきたい5つのこと｜前納・特例免除・iDeCoとの順番", memo: "直し済み。当日に「確認画面へ」→「投稿する」を押すだけ", url: "https://library.libecity.com/articles/01M3B4QSP5ZFV930ETFEBHC1ZX/edit" },
+    { date: "2026-11-20", status: "draft", title: "【失業手当】認定日に4回通ってわかった流れと注意点｜行けない日はどうなる？", memo: "11/12の認定日のあと、クロコが「6回目」まで書き足してから公開", url: "https://library.libecity.com/articles/01M3B46E035YSY91C6DRZ9D40Z/edit" },
+    { date: "2026-11-27", status: "draft", title: "【失業手当】求職活動実績の作り方4つ｜オンラインセミナーでもOK・証明書の注意点", memo: "doda証明書の「自分でダウンロード」形式をクロコが直してから公開", url: "https://library.libecity.com/articles/01M3B4J0KKMD7517WVT1HHECG7/edit" },
+  ],
+
+  // ---- Instagram @lucid_zinnia7777（2026-11-05 追加）----
+  // status: posted=投稿済み / planned=予定（日付は仮。クロコが画像＋caption.txtをドライブ「インスタ素材」へ→はるパパがAndroidで投稿）
+  instaPosts: [
+    { date: "2026-10-23", status: "posted", title: "はじめまして", memo: "" },
+    { date: "2026-10-23", status: "posted", title: "ディズニー3泊4日の総額", memo: "" },
+    { date: "2026-10-26", status: "posted", title: "ディズニーの段取り（パッケージとDPA）", memo: "" },
+    { date: "2026-10-30", status: "posted", title: "雨の日のシー", memo: "" },
+    { date: "2026-11-05", status: "posted", title: "恵那峡と栗拾いの総額", memo: "11/2の予定を忘れて11/5に投稿" },
+    { date: "2026-11-09", status: "planned", title: "恵那峡② 栗拾いの段取り", memo: "仮の日付。クロコが画像を作ってドライブへ" },
+    { date: "2026-11-12", status: "planned", title: "北海道① 家族5人の総額（見込み80万→64万）", memo: "仮の日付" },
+  ],
+
   xPosts: [
     {
       id: 1,
@@ -2210,14 +2240,14 @@ const DASHBOARD_DATA = {
     {
       id: 163,
       date: "2026-11-02",
-      status: "scheduled",
+      status: "posted",
       text: "本日のnoteは、10月末の資産公開です。\n\n株は戻ってきたのに、\n総資産は減りました。\n\n家族の中で、大きなお金が動いた月です📊\n\n有料（300円）・冒頭は無料で読めます。\n\n#サイドFIRE #FIRE #50代 #資産運用",
       linkedArticle: 64,
     },
     {
       id: 164,
       date: "2026-11-02",
-      status: "scheduled",
+      status: "posted",
       text: "退職後8ヶ月目の資産を公開しました。\n\n株は戻ったのに、数字は減った月。\n10月は遠くへ行かず、近場で遊びました。\n\n▼ note記事はこちら\nhttps://note.com/lucid_zinnia7777/n/n4c95232b10c0\n\n#サイドFIRE #FIRE #50代 #資産運用",
       linkedArticle: 64,
     },
@@ -2584,7 +2614,21 @@ function renderCalendar() {
     }
   });
 
-  let html = `
+  (D.libePosts || []).forEach(p => {
+    if (p.date && p.date.startsWith(ym)) {
+      const day = parseInt(p.date.split('-')[2]);
+      if (!events[day]) events[day] = [];
+      events[day].push({ type: 'libe', label: '🦁リベ', title: p.title, posted: p.status === 'published' });
+    }
+  });
+  (D.instaPosts || []).forEach(p => {
+    if (p.date && p.date.startsWith(ym)) {
+      const day = parseInt(p.date.split('-')[2]);
+      if (!events[day]) events[day] = [];
+      events[day].push({ type: 'insta', label: '📷インスタ', title: p.title, posted: p.status === 'posted' });
+    }
+  });
+  let html = todoBanner() + `
     <div class="cal-nav">
       <button onclick="changeMonth(-1)">◀ 前月</button>
       <span class="cal-month-label">${calYear}年 ${calMonth+1}月</span>
@@ -2603,7 +2647,7 @@ function renderCalendar() {
     html += `<div class="day-num">${d}</div>`;
     if (events[d]) {
       events[d].forEach(ev => {
-        const evClass = ev.type === 'note' ? 'note-ev' : ('x-ev' + (ev.posted ? ' posted' : ''));
+        const evClass = ev.type === 'note' ? 'note-ev' : ev.type === 'libe' ? ('libe-ev' + (ev.posted ? ' done' : '')) : ev.type === 'insta' ? ('insta-ev' + (ev.posted ? ' done' : '')) : ('x-ev' + (ev.posted ? ' posted' : ''));
         html += `<div class="event ${evClass}" title="${ev.title}${ev.posted ? ' (投稿済み)' : ''}">${ev.label}</div>`;
       });
     }
@@ -2745,6 +2789,52 @@ function renderKpi() {
   el.innerHTML = html;
 }
 
+// ---- 今日・明日の投稿（2026-11-05 追加）：予定日を過ぎて未投稿のものは「遅れ」で出す ----
+function ymdLocal(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function todoBanner() {
+  const t = new Date(); const today = ymdLocal(t);
+  const tm = new Date(t); tm.setDate(t.getDate()+1); const tomorrow = ymdLocal(tm);
+  const cut = new Date(t); cut.setDate(t.getDate()-14); const cutoff = ymdLocal(cut); // 2週間より前の未投稿は出さない
+  const items = [];
+  const push = (date, kind, title, done) => {
+    if (done || !date) return;
+    if (date < today && date >= cutoff) items.push({ k: 0, date, html: `<span class="late">⚠ 遅れ（${fmt(date)}予定）</span> ${kind} ${escHtml(title)}` });
+    else if (date === today) items.push({ k: 1, date, html: `<b>今日</b> ${kind} ${escHtml(title)}` });
+    else if (date === tomorrow) items.push({ k: 2, date, html: `明日 ${kind} ${escHtml(title)}` });
+  };
+  D.articles.forEach(a => push(a.date, '📝note', a.title, a.status === 'published' || a.status === 'idea'));
+  D.xPosts.forEach(p => push(p.date, '𝕏', p.text.split('\n')[0].substring(0,30), p.status === 'posted'));
+  (D.libePosts || []).forEach(p => push(p.date, '🦁リベ', p.title, p.status === 'published'));
+  (D.instaPosts || []).forEach(p => push(p.date, '📷インスタ', p.title, p.status === 'posted'));
+  items.sort((a,b) => a.k - b.k || a.date.localeCompare(b.date));
+  const body = items.length ? items.map(i => i.html).join('<br>') : '今日・明日の予定はありません ✨';
+  return `<div class="todo-box"><div style="font-weight:bold;margin-bottom:2px;">📌 今日・明日の投稿（note・X・リベ・インスタ）</div>${body}</div>`;
+}
+
+// ---- リベシティ・インスタ パネル（2026-11-05 追加）----
+function renderOther() {
+  const el = document.getElementById('panel-other');
+  if (!el) return;
+  const row = (p, done, link) => `
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">${fmt(p.date)}　${escHtml(p.title)}</span>
+          ${statusBadge(p.status)}
+        </div>
+        ${p.memo ? `<div style="font-size:13px;color:var(--text-sub);margin-top:6px;">${escHtml(p.memo)}</div>` : ''}
+        ${link && p.url ? `<a href="${p.url}" target="_blank" rel="noopener" class="article-link-btn" style="margin-top:8px;">🔗 ${done ? '記事を開く' : '編集画面を開く'}</a>` : ''}
+      </div>`;
+  const libe = (D.libePosts || []).slice().sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  const insta = (D.instaPosts || []).slice().sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  let html = `<div class="section-title">🦁 リベシティ ノウハウ図書館（週1本・金曜）</div>`;
+  html += `<div style="font-size:12px;color:var(--muted);margin-bottom:8px;">公開ボタンははるパパ。公開済みの記事を直すときは「確認画面へ」→「更新する」まで（下書き保存がない）</div>`;
+  html += libe.map(p => row(p, p.status === 'published', true)).join('');
+  html += `<div class="section-title" style="margin-top:24px">📷 Instagram @lucid_zinnia7777（週2回・曜日は固定しない）</div>`;
+  html += `<div style="font-size:12px;color:var(--muted);margin-bottom:8px;">クロコが画像7枚＋caption.txtをドライブ「インスタ素材」に入れる → はるパパがAndroidで投稿 → 投稿したらクロコに一言</div>`;
+  html += insta.map(p => row(p, p.status === 'posted', false)).join('');
+  el.innerHTML = html;
+}
+
 // ---- タブ切替 ----
 function switchTab(tabName) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
@@ -2761,6 +2851,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initCal();
   renderProfile();
   renderKpi();
+  renderOther();
   // ヘッダー
   document.getElementById('header-info').innerHTML = `
     <h1>CONTENT DASHBOARD</h1>
@@ -2777,6 +2868,7 @@ document.addEventListener('DOMContentLoaded', () => {
   <div class="tab" data-tab="note" onclick="switchTab('note')">📰 note</div>
   <div class="tab" data-tab="x" onclick="switchTab('x')">𝕏 X投稿</div>
   <div class="tab" data-tab="kindle" onclick="switchTab('kindle')">📚 Kindle本</div>
+  <div class="tab" data-tab="other" onclick="switchTab('other')">🦁 リベ・📷 インスタ</div>
   <div class="tab" data-tab="kpi" onclick="switchTab('kpi')">📈 KPI</div>
   <div class="tab" data-tab="profile" onclick="switchTab('profile')">👤 プロフィール</div>
 </div>
@@ -2785,6 +2877,7 @@ document.addEventListener('DOMContentLoaded', () => {
 <div id="panel-note" class="panel"></div>
 <div id="panel-x" class="panel"></div>
 <div id="panel-kindle" class="panel"></div>
+<div id="panel-other" class="panel"></div>
 <div id="panel-kpi" class="panel"></div>
 <div id="panel-profile" class="panel"></div>
 
